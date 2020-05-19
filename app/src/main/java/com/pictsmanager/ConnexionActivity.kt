@@ -54,7 +54,7 @@ class ConnexionActivity : AppCompatActivity() {
             val emailInputVal = emailInput.text.toString()
             val passInputVal = passInput.text.toString()
 
-            val intent = Intent(this@ConnexionActivity, HomeActivity::class.java)
+            val intent = Intent(this@ConnexionActivity, CameraManagement::class.java)
             startActivity(intent)
 
         }
