@@ -19,7 +19,6 @@
             android:name=".ui.login.LoginActivity"
             android:label="@string/title_activity_login"></activity>
         <activity android:name=".HomeActivity" />
-        <activity android:name=".CameraManagement" />
         <activity android:name=".CreateAccountActivity" />
         <activity android:name=".ConnexionActivity">
             <intent-filter>
