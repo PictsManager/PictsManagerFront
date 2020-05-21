@@ -2,6 +2,7 @@ package com.pictsmanager
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.ImageFormat
 import android.graphics.SurfaceTexture
@@ -24,6 +25,7 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import kotlinx.android.synthetic.main.activity_home.*
 import java.io.*
 import java.util.*
 
@@ -78,6 +80,24 @@ class HomeActivity : AppCompatActivity() {
         textureView!!.surfaceTextureListener = textureListener
         btnCapture = findViewById<View>(R.id.btnCapture) as Button
         btnCapture!!.setOnClickListener { takePicture() }
+        initButtons();
+    }
+
+    private fun initButtons() {
+        btnGallery.setOnClickListener {
+            val intent = Intent(this@HomeActivity, GalleryActivity::class.java)
+            startActivity(intent)
+        }
+
+        btnSearch.setOnClickListener {
+            val intent = Intent(this@HomeActivity, SearchActivity::class.java)
+            startActivity(intent)
+        }
+
+        btnProfil.setOnClickListener {
+            val intent = Intent(this@HomeActivity, ProfilActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     private fun takePicture() {

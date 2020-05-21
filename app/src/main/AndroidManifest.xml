@@ -2,8 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.pictsmanager">
 
-    <!--<uses-feature android:name="android.hardware.camera2.full" />-->
-
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.hardware.camera2.full" />
@@ -20,6 +18,9 @@
             android:label="@string/title_activity_login"></activity>
         <activity android:name=".HomeActivity" />
         <activity android:name=".CreateAccountActivity" />
+        <activity android:name=".GalleryActivity" />
+        <activity android:name=".SearchActivity" />
+        <activity android:name=".ProfilActivity" />
         <activity android:name=".ConnexionActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -27,16 +28,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <!--<provider
-            android:authorities="com.pictsmanager.fileprovider"
-            android:name="androidx.core.content.FileProvider"
-            android:exported="false"
-            android:grantUriPermissions="true">
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths"></meta-data>
-        </provider>-->
     </application>
 
 </manifest>
