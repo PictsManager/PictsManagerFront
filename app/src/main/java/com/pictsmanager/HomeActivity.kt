@@ -4,6 +4,8 @@ import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.ImageFormat
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.*
@@ -11,10 +13,8 @@ import android.hardware.camera2.CameraCaptureSession.CaptureCallback
 import android.media.Image
 import android.media.ImageReader
 import android.media.ImageReader.OnImageAvailableListener
-import android.os.Bundle
-import android.os.Environment
-import android.os.Handler
-import android.os.HandlerThread
+import android.os.*
+import android.util.Log
 import android.util.Size
 import android.util.SparseIntArray
 import android.view.Surface
@@ -115,6 +115,7 @@ class HomeActivity : AppCompatActivity() {
             // Capture image with custom size
             var width = 640
             var height = 480
+
             if (jpegSizes != null && jpegSizes.size > 0) {
                 width = jpegSizes[0].width
                 height = jpegSizes[0].height
@@ -164,6 +165,19 @@ class HomeActivity : AppCompatActivity() {
                     try {
                         outputStream = FileOutputStream(file)
                         outputStream.write(bytes)
+
+                        /***/
+                        var bmp : Bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+
+                        var filePath: String = tempFileImage(this@HomeActivity, bmp, "name")
+
+                        Log.d("IMAGE SIZE ::", bytes.size.toString())
+                        val intent = Intent(this@HomeActivity, PictureActivity::class.java)
+
+                        intent.putExtra("PictureTaked", filePath)
+
+                        startActivity(intent)
+                        /***/
                     } finally {
                         outputStream?.close()
                     }
@@ -204,6 +218,24 @@ class HomeActivity : AppCompatActivity() {
         } catch (e: CameraAccessException) {
             e.printStackTrace()
         }
+    }
+
+    public fun tempFileImage(context: Context, bitmap: Bitmap, name: String): String {
+
+        var outputDir : File = context.cacheDir
+        var imageFile : File = File(outputDir, name + ".jpg")
+
+        var os : OutputStream
+        try {
+            os = FileOutputStream(imageFile)
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, os)
+            os.flush()
+            os.close()
+        } catch (e : Exception) {
+            e.printStackTrace()
+        }
+
+        return imageFile.absolutePath
     }
 
     private fun createCameraPreview() {
