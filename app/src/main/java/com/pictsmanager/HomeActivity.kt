@@ -113,8 +113,8 @@ class HomeActivity : AppCompatActivity() {
                     ?.getOutputSizes(ImageFormat.JPEG)
 
             // Capture image with custom size
-            var width = 640
-            var height = 480
+            var width = 600
+            var height = 700
 
             if (jpegSizes != null && jpegSizes.size > 0) {
                 width = jpegSizes[0].width
@@ -168,10 +168,10 @@ class HomeActivity : AppCompatActivity() {
 
                         /***/
                         var bmp : Bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                        Log.d("IMAGE SIZE ::", bmp.height.toString())
 
                         var filePath: String = tempFileImage(this@HomeActivity, bmp, "name")
 
-                        Log.d("IMAGE SIZE ::", bytes.size.toString())
                         val intent = Intent(this@HomeActivity, PictureActivity::class.java)
 
                         intent.putExtra("PictureTaked", filePath)
