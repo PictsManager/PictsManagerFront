@@ -189,8 +189,7 @@ class HomeActivity : AppCompatActivity() {
                     result: TotalCaptureResult
                 ) {
                     super.onCaptureCompleted(session, request, result)
-                    //Toast.makeText(this@HomeActivity, "Saved $file", Toast.LENGTH_SHORT)
-                     //   .show()
+
                     createCameraPreview()
                 }
             }
