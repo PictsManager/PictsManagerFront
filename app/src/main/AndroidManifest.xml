@@ -18,6 +18,8 @@
         <activity android:name=".GalleryActivity" />
         <activity android:name=".SearchActivity" />
         <activity android:name=".ProfilActivity" />
+        <activity android:name=".PictureActivity" />
+        <activity android:name=".SharingActivity" />
         <activity android:name=".ConnexionActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
