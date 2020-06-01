@@ -13,7 +13,11 @@ import android.hardware.camera2.CameraCaptureSession.CaptureCallback
 import android.media.Image
 import android.media.ImageReader
 import android.media.ImageReader.OnImageAvailableListener
-import android.os.*
+import android.net.Uri
+import android.os.Bundle
+import android.os.Environment
+import android.os.Handler
+import android.os.HandlerThread
 import android.util.Log
 import android.util.Size
 import android.util.SparseIntArray
@@ -25,8 +29,10 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.content.FileProvider
 import kotlinx.android.synthetic.main.activity_home.*
 import java.io.*
+import java.text.SimpleDateFormat
 import java.util.*
 
 class HomeActivity : AppCompatActivity() {
@@ -137,10 +143,7 @@ class HomeActivity : AppCompatActivity() {
                 CaptureRequest.JPEG_ORIENTATION,
                 ORIENTATION[rotation]
             )
-            file = File(
-                Environment.getExternalStorageDirectory()
-                    .toString() + "/" + UUID.randomUUID().toString() + ".jpg"
-            )
+
             val readerListener: OnImageAvailableListener = object : OnImageAvailableListener {
                 override fun onImageAvailable(reader: ImageReader) {
                     var image: Image? = null
@@ -163,10 +166,6 @@ class HomeActivity : AppCompatActivity() {
                 private fun save(bytes: ByteArray) {
                     var outputStream: OutputStream? = null
                     try {
-                        outputStream = FileOutputStream(file)
-                        outputStream.write(bytes)
-
-                        /***/
                         var bmp : Bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
                         Log.d("IMAGE SIZE ::", bmp.height.toString())
 
@@ -177,7 +176,6 @@ class HomeActivity : AppCompatActivity() {
                         intent.putExtra("PictureTaked", filePath)
 
                         startActivity(intent)
-                        /***/
                     } finally {
                         outputStream?.close()
                     }
@@ -191,8 +189,8 @@ class HomeActivity : AppCompatActivity() {
                     result: TotalCaptureResult
                 ) {
                     super.onCaptureCompleted(session, request, result)
-                    Toast.makeText(this@HomeActivity, "Saved $file", Toast.LENGTH_SHORT)
-                        .show()
+                    //Toast.makeText(this@HomeActivity, "Saved $file", Toast.LENGTH_SHORT)
+                     //   .show()
                     createCameraPreview()
                 }
             }
