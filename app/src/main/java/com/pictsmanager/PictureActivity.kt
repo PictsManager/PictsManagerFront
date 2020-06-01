@@ -20,19 +20,12 @@ class PictureActivity : AppCompatActivity() {
         imagePictureView = findViewById<View>(R.id.imagePictureView) as ImageView
 
         val filePath = intent.getStringExtra("PictureTaked")
-        var file : File = File(filePath)
+        var file = File(filePath)
 
         var bitmap : Bitmap = BitmapFactory.decodeFile(file.absolutePath)
         val resizedBitmap = resizeBitmap(bitmap, 800, 700)
 
-        /*
-        Picasso
-            .get()
-            .load(filePath)
-            .into(imagePictureView)
-        */
         imagePictureView!!.setImageBitmap(resizedBitmap)
-
         initButtons()
     }
 
