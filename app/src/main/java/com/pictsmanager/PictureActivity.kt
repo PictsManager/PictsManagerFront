@@ -7,6 +7,8 @@ import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
+import kotlinx.android.synthetic.main.activity_home.*
+import kotlinx.android.synthetic.main.activity_picture.*
 import java.io.File
 
 class PictureActivity : AppCompatActivity() {
@@ -30,6 +32,8 @@ class PictureActivity : AppCompatActivity() {
             .into(imagePictureView)
         */
         imagePictureView!!.setImageBitmap(resizedBitmap)
+
+        initButtons()
     }
 
     fun resizeBitmap(bitmap:Bitmap, width:Int, height:Int) : Bitmap {
@@ -39,5 +43,17 @@ class PictureActivity : AppCompatActivity() {
             height,
             false
         )
+    }
+
+    private fun initButtons() {
+        buttonBackCamera.setOnClickListener {
+            val intent = Intent(this@PictureActivity, HomeActivity::class.java)
+            startActivity(intent)
+        }
+
+        buttonEditView.setOnClickListener {
+            val intent = Intent(this@PictureActivity, EditViewActivity::class.java)
+            startActivity(intent)
+        }
     }
 }

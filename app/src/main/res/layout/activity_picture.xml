@@ -18,17 +18,17 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/buttonBackCamera"
         android:layout_width="53dp"
         android:layout_height="52dp"
         android:layout_marginStart="11dp"
         android:layout_marginTop="16dp"
-        android:background="@drawable/fetch"
+        android:background="@drawable/left_fetch"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/buttonEditView"
         android:layout_width="53dp"
         android:layout_height="52dp"
         android:layout_marginEnd="17dp"
