@@ -21,20 +21,30 @@
         android:id="@+id/buttonBackCamera"
         android:layout_width="53dp"
         android:layout_height="52dp"
-        android:layout_marginStart="11dp"
-        android:layout_marginTop="16dp"
-        android:background="@drawable/left_fetch"
+        android:layout_marginStart="17dp"
+        android:layout_marginTop="17dp"
+        android:background="@drawable/cancel_red"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/buttonEditView"
+        android:id="@+id/buttonSharing"
         android:layout_width="53dp"
         android:layout_height="52dp"
         android:layout_marginEnd="17dp"
         android:layout_marginBottom="17dp"
-        android:background="@drawable/edit"
+        android:background="@drawable/share"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+
+    <Button
+        android:id="@+id/buttonValidatePicture"
+        android:layout_width="53dp"
+        android:layout_height="52dp"
+        android:layout_marginStart="17dp"
+        android:layout_marginBottom="17dp"
+        android:background="@drawable/valid"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

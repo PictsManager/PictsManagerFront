@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
-import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.activity_picture.*
 import java.io.File
 
@@ -44,8 +43,13 @@ class PictureActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        buttonEditView.setOnClickListener {
-            val intent = Intent(this@PictureActivity, EditViewActivity::class.java)
+        buttonSharing.setOnClickListener {
+            val intent = Intent(this@PictureActivity, SharingActivity::class.java)
+            startActivity(intent)
+        }
+
+        buttonValidatePicture.setOnClickListener {
+            val intent = Intent(this@PictureActivity, HomeActivity::class.java)
             startActivity(intent)
         }
     }
