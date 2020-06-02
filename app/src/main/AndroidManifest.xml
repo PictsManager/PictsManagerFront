@@ -15,15 +15,17 @@
         android:theme="@style/AppTheme">
         <activity android:name=".HomeActivity" />
         <activity android:name=".CreateAccountActivity" />
-        <activity android:name=".GalleryActivity" />
-        <activity android:name=".SearchActivity" />
-        <activity android:name=".ProfilActivity" />
-        <activity android:name=".ConnexionActivity">
+        <activity android:name=".GalleryActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity android:name=".SearchActivity" />
+        <activity android:name=".ProfilActivity" />
+        <activity android:name=".ConnexionActivity">
+
         </activity>
     </application>
 
