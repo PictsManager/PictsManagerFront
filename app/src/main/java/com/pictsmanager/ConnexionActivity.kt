@@ -4,17 +4,19 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.widget.Button
+import android.util.Log
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.pictsmanager.request.model.SuccessModel
 import com.pictsmanager.request.model.UserModel
 import com.pictsmanager.request.service.UserService
 import com.pictsmanager.util.EnumTypeInput
+import com.pictsmanager.util.GlobalStatus
 import kotlinx.android.synthetic.main.activity_connexion.*
-/*import retrofit2.Call
+import retrofit2.Call
 import retrofit2.Callback
-import retrofit2.Response*/
+import retrofit2.Response
 
 class ConnexionActivity : AppCompatActivity() {
 
@@ -56,12 +58,15 @@ class ConnexionActivity : AppCompatActivity() {
             val emailInputVal = emailInput.text.toString()
             val passInputVal = passInput.text.toString()
 
-            /* TODO : Connect with the real API
+/*             TODO : Connect with the real API*/
             tryConnexion(emailInputVal, passInputVal)
-            */
+
+
+/*
             val intent = Intent(this@ConnexionActivity, HomeActivity::class.java)
 //                intent.putExtra("key", "Kotlin")
             startActivity(intent)
+*/
         }
 
         createAccountButtonLink.setOnClickListener {
@@ -113,30 +118,31 @@ class ConnexionActivity : AppCompatActivity() {
         return password.toString().length > 5
     }
 
-/*    private fun tryConnexion(email: String, password: String) {
+    private fun tryConnexion(email: String, password: String) {
         val userModel = UserModel()
         userModel.email = email
         userModel.password = password
-        val userConnexionRequest = UserService.service.tryConnexion(userModel)
-        userConnexionRequest.enqueue(object : Callback<UserModel> {
-            override fun onResponse(call: Call<UserModel>, response: Response<UserModel>) {
+        val userConnexionRequest = UserService.service.tryConnexion(email, password)
+        userConnexionRequest.enqueue(object : Callback<SuccessModel> {
+            override fun onResponse(call: Call<SuccessModel>, response: Response<SuccessModel>) {
                 val body = response.body()
                 body?.let {
                 }
+                GlobalStatus.JWT = response.headers().get("JWT").toString()
                 Toast.makeText(this@ConnexionActivity, "Connexion Success", Toast.LENGTH_SHORT)
                     .show()
                 val intent = Intent(this@ConnexionActivity, HomeActivity::class.java)
                 startActivity(intent)
             }
 
-            override fun onFailure(call: Call<UserModel>, t: Throwable) {
+            override fun onFailure(call: Call<SuccessModel>, t: Throwable) {
+                Log.d("ERR", t.toString())
                 Toast.makeText(
                     this@ConnexionActivity,
                     "Wrong Email or Password",
                     Toast.LENGTH_SHORT
-                )
-                    .show()
+                ).show()
             }
         })
-    }*/
+    }
 }

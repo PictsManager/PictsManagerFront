@@ -13,11 +13,9 @@ import com.pictsmanager.util.EnumTypeInput
 import kotlinx.android.synthetic.main.activity_connexion.emailInput
 import kotlinx.android.synthetic.main.activity_connexion.passInput
 import kotlinx.android.synthetic.main.activity_create_account.*
-/*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-*/
 
 class CreateAccountActivity : AppCompatActivity() {
 
@@ -54,17 +52,16 @@ class CreateAccountActivity : AppCompatActivity() {
             val emailInputVal = emailInput.text.toString()
             val passInputVal = passInput.text.toString()
 
-            /* TODO : Connect with the real API
             tryCreateAccount(emailInputVal, passInputVal)
-            */
-            Toast.makeText(
+
+/*            Toast.makeText(
                 this@CreateAccountActivity,
                 "Creation Account Success",
                 Toast.LENGTH_LONG
             ).show()
 
             val intent = Intent(this@CreateAccountActivity, ConnexionActivity::class.java)
-            startActivity(intent)
+            startActivity(intent)*/
         }
     }
 
@@ -130,11 +127,11 @@ class CreateAccountActivity : AppCompatActivity() {
         return password.toString() == passInput.text.toString()
     }
 
-/*    private fun tryCreateAccount(email: String, password: String) {
+    private fun tryCreateAccount(email: String, password: String) {
         val userModel = UserModel()
         userModel.email = email
         userModel.password = password
-        val userConnexionRequest = UserService.service.tryConnexion(userModel)
+        val userConnexionRequest = UserService.service.tryCreateAccount(userModel)
         userConnexionRequest.enqueue(object : Callback<UserModel> {
             override fun onResponse(call: Call<UserModel>, response: Response<UserModel>) {
                 val body = response.body()
@@ -150,12 +147,14 @@ class CreateAccountActivity : AppCompatActivity() {
             }
 
             override fun onFailure(call: Call<UserModel>, t: Throwable) {
+
                 Toast.makeText(
                     this@CreateAccountActivity,
                     "Email already taken",
                     Toast.LENGTH_SHORT
                 ).show()
+                println(t.message)
             }
         })
-    }*/
+    }
 }
