@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.DisplayMetrics
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,16 +17,24 @@ import com.pictsmanager.HomeActivity
 import com.pictsmanager.R
 import com.pictsmanager.request.model.AlbumModel
 import com.pictsmanager.request.model.ImageModel
+import com.pictsmanager.request.model.SuccessModel
+import com.pictsmanager.request.service.GlobalService
+import com.pictsmanager.request.service.UserService
+import com.pictsmanager.util.GlobalStatus
 import com.pictsmanager.util.ImageGalleryAdapter
 import kotlinx.android.synthetic.main.activity_gallery.*
 import kotlinx.android.synthetic.main.image_fragment.*
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class ImageFragment(context: Context): Fragment(){
-    var ctx: Context = context
 
+    var ctx: Context = context
     var imagesSelected = mutableMapOf<Int, Boolean>()
     var images: ArrayList<ImageModel> = ArrayList()
     var albumSelected: String = ""
+
     lateinit var imageAdapter: ImageGalleryAdapter
     lateinit var gridView: GridView
     lateinit var bottomNavigation: BottomNavigationView
@@ -35,48 +44,18 @@ class ImageFragment(context: Context): Fragment(){
 
         var view: View = inflater.inflate(R.layout.image_fragment, container, false)
 
-
         bottomNavigation = view.findViewById(R.id.image_gallery_bottom_navigation)
         gridView = view.findViewById(R.id.image_gallery_list_view) as GridView
-        images.add(ImageModel(1, "Salameche", R.drawable.salameche, 0, false))
-        images.add(ImageModel(2, "Damso", R.drawable.damso, 0, false))
-        images.add(ImageModel(3, "Voltaire", R.drawable.voltaire, 0, false))
-        images.add(ImageModel(4, "Johnny", R.drawable.johnny, 0, false))
-        images.add(ImageModel(5, "Jack", R.drawable.jack, 0, false))
-        images.add(ImageModel(6, "Aragorn", R.drawable.aragorn, 0, false))
-        /*images.add(ImageModel(5, "Salameche 5", R.drawable.salameche, 0, false))
-        images.add(ImageModel(6, "Salameche 6", R.drawable.salameche, 0, false))
-        images.add(ImageModel(7, "Salameche 7", R.drawable.salameche, 0, false))
-        images.add(ImageModel(8, "Salameche 8", R.drawable.salameche, 0, false))
-        images.add(ImageModel(9, "Salameche 9", R.drawable.salameche, 0, false))
-        images.add(ImageModel(10, "Salameche 10", R.drawable.salameche, 0, false))
-        images.add(ImageModel(11, "Salameche 11", R.drawable.salameche, 0, false))
-        images.add(ImageModel(12, "Salameche 12", R.drawable.salameche, 0, false))
-        images.add(ImageModel(13, "Salameche 13", R.drawable.salameche, 0, false))
-        images.add(ImageModel(14, "Salameche 14", R.drawable.salameche, 0, false))
-        images.add(ImageModel(15, "Salameche 15", R.drawable.salameche, 0, false))
-        images.add(ImageModel(16, "Salameche 16", R.drawable.salameche, 0, false))
-        images.add(ImageModel(17, "Salameche 17", R.drawable.salameche, 0, false))
-        images.add(ImageModel(18, "Salameche 18", R.drawable.salameche, 0, false))
-        images.add(ImageModel(19, "Salameche 19", R.drawable.salameche, 0, false))
-        images.add(ImageModel(20, "Salameche 20", R.drawable.salameche, 0, false))
-        images.add(ImageModel(21, "Salameche 21", R.drawable.salameche, 0, false))*/
 
-        resetGridViewAndImageSelected()
-
+        updateCurrentList()
         initButtons()
 
         return view
     }
 
-    //TODO: When anew user see this view, images list is updated
     override fun onResume() {
         super.onResume()
-        //TODO: Api call completing Images array
-
-        if (images != null) {
-            //TODO: rebuild adapter with refreshed albums, set adapter ti gridview
-        }
+        updateCurrentList()
     }
 
     private fun initButtons() {
@@ -138,7 +117,20 @@ class ImageFragment(context: Context): Fragment(){
             dialog.dismiss()
         }
         delete_button.setOnClickListener {
-            //TODO: Api call performing multiple suppression
+            val ids = getImageModelIdsFromImageSelected()
+            val imageReadRequest = GlobalService.imageService.deleteImages(ids)
+            imageReadRequest.enqueue(object : Callback<Any> {
+                override fun onResponse(call: Call<Any>, response: Response<Any>) {
+                    val body = response.body()
+                    body?.let {
+                        Toast.makeText(ctx, it.toString(), Toast.LENGTH_LONG).show()
+                    }
+                }
+                override fun onFailure(call: Call<Any>, t: Throwable) {
+                    Log.d("ERR", t.toString())
+                    Toast.makeText(ctx, "ERROR server", Toast.LENGTH_LONG).show()
+                }
+            })
             for (p in imagesSelected) {
                 if (p.value) {
                     images.remove(imageAdapter.getItem(p.key))
@@ -171,11 +163,47 @@ class ImageFragment(context: Context): Fragment(){
             dialog.dismiss()
         }
         not_granted_button.setOnClickListener {
-            //TODO: Api call granted images list access_read
+            for (p in imagesSelected) {
+                if (p.value) {
+                    val position = p.key
+                    val im: ImageModel = getImageModelFromPosition(position)!!
+                    val imageUpdateRequest = GlobalService.imageService.updateImage(im.id, im.name, false)
+                    imageUpdateRequest.enqueue(object : Callback<Any> {
+                        override fun onResponse(call: Call<Any>, response: Response<Any>) {
+                            val body = response.body()
+                            body?.let {
+                                Toast.makeText(ctx, it.toString(), Toast.LENGTH_LONG).show()
+                            }
+                        }
+                        override fun onFailure(call: Call<Any>, t: Throwable) {
+                            Log.d("ERR", t.toString())
+                            Toast.makeText(ctx, "ERROR server", Toast.LENGTH_LONG).show()
+                        }
+                    })
+                }
+            }
             dialog.dismiss()
         }
         granted_button.setOnClickListener {
-            //TODO: Api call not granted images list access_read
+            for (p in imagesSelected) {
+                if (p.value) {
+                    val position = p.key
+                    val im: ImageModel = getImageModelFromPosition(position)!!
+                    val imageUpdateRequest = GlobalService.imageService.updateImage(im.id, im.name, true)
+                    imageUpdateRequest.enqueue(object : Callback<Any> {
+                        override fun onResponse(call: Call<Any>, response: Response<Any>) {
+                            val body = response.body()
+                            body?.let {
+                                Toast.makeText(ctx, it.toString(), Toast.LENGTH_LONG).show()
+                            }
+                        }
+                        override fun onFailure(call: Call<Any>, t: Throwable) {
+                            Log.d("ERR", t.toString())
+                            Toast.makeText(ctx, "ERROR server", Toast.LENGTH_LONG).show()
+                        }
+                    })
+                }
+            }
             dialog.dismiss()
         }
 
@@ -188,13 +216,28 @@ class ImageFragment(context: Context): Fragment(){
     }
 
     private fun showAddDialog(context: Context) {
-        //TODO: Api call get Albums
-        var albums: ArrayList<AlbumModel> = ArrayList()
-        albums.add(AlbumModel(1, "album 1", ArrayList<ImageModel>(), 1, false))
-        albums.add(AlbumModel(2, "album 2", ArrayList<ImageModel>(), 1, false))
-        albums.add(AlbumModel(3, "album 3", ArrayList<ImageModel>(), 1, false))
-        albums.add(AlbumModel(4, "album 4", ArrayList<ImageModel>(), 1, false))
-        var albums1 = albums //TODO: Replace by Api result
+        val albumReadRequest = GlobalService.albumService.readAlbums(null)
+        var resp: Response<ArrayList<AlbumModel>> = albumReadRequest.execute()
+        var albums1: ArrayList<AlbumModel> = ArrayList()
+
+        if (resp.isSuccessful) {
+            albums1 = albumReadRequest.execute().body()!!
+        }
+
+        /*albumReadRequest.enqueue(object : Callback<ArrayList<AlbumModel>> {
+            override fun onResponse(call: Call<ArrayList<AlbumModel>>, response: Response<ArrayList<AlbumModel>>) {
+                val body = response.body()
+                body?.let {
+                    Toast.makeText(ctx, it.toString(), Toast.LENGTH_LONG).show()
+                    albums1 = it
+                }
+            }
+            override fun onFailure(call: Call<ArrayList<AlbumModel>>, t: Throwable) {
+                Log.d("ERR", t.toString())
+                Toast.makeText(ctx, "ERROR server", Toast.LENGTH_LONG).show()
+            }
+        })*/
+
         var album_labels: ArrayList<String> = ArrayList()
 
         for (i in albums1) {
@@ -219,7 +262,25 @@ class ImageFragment(context: Context): Fragment(){
             dialog.dismiss()
         }
         add_button.setOnClickListener {
-            //TODO: Api call post images id with name album param
+            val albumName: String = album_spinner.selectedItem as String
+            var selectedAlbum: AlbumModel = getAlbumModelFromName(albums1, albumName)!!
+            var newIds = getImageModelIdsFromImageSelected()
+            for (id in newIds) {
+                selectedAlbum.images.add(id)
+            }
+            var albumUpdateRequest = GlobalService.albumService.updateAlbum(selectedAlbum.id, selectedAlbum.name, selectedAlbum.access_read, selectedAlbum.images)
+            albumUpdateRequest.enqueue(object : Callback<Any> {
+                override fun onResponse(call: Call<Any>, response: Response<Any>) {
+                    val body = response.body()
+                    body?.let {
+                        Toast.makeText(ctx, it.toString(), Toast.LENGTH_LONG).show()
+                    }
+                }
+                override fun onFailure(call: Call<Any>, t: Throwable) {
+                    Log.d("ERR", t.toString())
+                    Toast.makeText(ctx, "ERROR server", Toast.LENGTH_LONG).show()
+                }
+            })
             dialog.dismiss()
         }
         album_spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
@@ -236,5 +297,67 @@ class ImageFragment(context: Context): Fragment(){
         val dialogHeight = (displayMetrics.heightPixels * 0.40).toInt()
         dialog.getWindow()?.setLayout(dialogWidth, dialogHeight)
         dialog.show()
+    }
+
+    private fun readImages() {
+        val imageReadRequest = GlobalService.imageService.readImages(null)
+        imageReadRequest.enqueue(object : Callback<ArrayList<ImageModel>> {
+            override fun onResponse(call: Call<ArrayList<ImageModel>>, response: Response<ArrayList<ImageModel>>) {
+                val body = response.body()
+                body?.let {
+                }
+            }
+
+            override fun onFailure(call: Call<ArrayList<ImageModel>>, t: Throwable) {
+                Log.d("ERR", t.toString())
+            }
+        })
+    }
+
+    private fun getImageModelFromPosition(position: Int): ImageModel? {
+        for (im in images) {
+            if (images.indexOf(im) == position) {
+                return im
+            }
+        }
+        return null
+    }
+
+    private fun getAlbumModelFromName(albums: ArrayList<AlbumModel>, name: String): AlbumModel? {
+        for (alb in albums) {
+            if (alb.name == name) {
+                return alb
+            }
+        }
+        return null
+    }
+
+    private fun getImageModelIdsFromImageSelected(): ArrayList<Long> {
+        var ids: ArrayList<Long> = ArrayList()
+
+        for (p in imagesSelected) {
+            if (p.value) {
+                val im = imageAdapter.getItem(p.key) as ImageModel
+                ids.add(im.id)
+            }
+        }
+        return ids
+    }
+
+    private fun updateCurrentList() {
+        val imageReadRequest = GlobalService.imageService.readImages(null)
+        imageReadRequest.enqueue(object : Callback<ArrayList<ImageModel>> {
+            override fun onResponse(call: Call<ArrayList<ImageModel>>, response: Response<ArrayList<ImageModel>>) {
+                val body = response.body()
+                body?.let {
+                    images = it
+                    resetGridViewAndImageSelected()
+                }
+            }
+            override fun onFailure(call: Call<ArrayList<ImageModel>>, t: Throwable) {
+                Log.d("ERR", t.toString())
+                Toast.makeText(ctx, "ERROR server: read", Toast.LENGTH_LONG).show()
+            }
+        })
     }
 }

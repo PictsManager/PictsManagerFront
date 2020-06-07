@@ -4,6 +4,7 @@ import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
 import android.util.DisplayMetrics
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,13 +15,19 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.pictsmanager.R
 import com.pictsmanager.request.model.AlbumModel
 import com.pictsmanager.request.model.ImageModel
+import com.pictsmanager.request.service.GlobalService
 import com.pictsmanager.util.AlbumGalleryAdapter
+import com.pictsmanager.util.ImageGalleryAdapter
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class AlbumFragment(context: Context): Fragment() {
-    var ctx: Context = context
 
+    var ctx: Context = context
     var albumsSelected = mutableMapOf<Int, Boolean>()
     var albums: ArrayList<AlbumModel> = ArrayList()
+
     lateinit var albumAdapter: AlbumGalleryAdapter
     lateinit var gridView: GridView
     lateinit var bottomNavigation: BottomNavigationView
@@ -30,33 +37,9 @@ class AlbumFragment(context: Context): Fragment() {
         var view: View = inflater.inflate(R.layout.album_fragment, container, false)
 
         bottomNavigation = view.findViewById(R.id.album_gallery_bottom_navigation)
-
         gridView = view.findViewById(R.id.album_gallery_list_view) as GridView
 
-        var images1: ArrayList<ImageModel> = ArrayList()
-        images1.add(ImageModel(1, "Salameche 1", R.drawable.salameche, 0, false))
-        images1.add(ImageModel(2, "Salameche 2", R.drawable.salameche, 0, false))
-        images1.add(ImageModel(3, "Salameche 3", R.drawable.salameche, 0, false))
-        images1.add(ImageModel(4, "Salameche 4", R.drawable.salameche, 0, false))
-
-        var images2: ArrayList<ImageModel> = ArrayList()
-        images2.add(ImageModel(5, "Salameche 5", R.drawable.salameche, 0, false))
-        images2.add(ImageModel(6, "Salameche 6", R.drawable.salameche, 0, false))
-        images2.add(ImageModel(7, "Salameche 7", R.drawable.salameche, 0, false))
-        images2.add(ImageModel(8, "Salameche 8", R.drawable.salameche, 0, false))
-
-        var images3: ArrayList<ImageModel> = ArrayList()
-        images3.add(ImageModel(9, "Salameche 9", R.drawable.salameche, 0, false))
-        images3.add(ImageModel(10, "Salameche 10", R.drawable.salameche, 0, false))
-        images3.add(ImageModel(11, "Salameche 11", R.drawable.salameche, 0, false))
-        images3.add(ImageModel(12, "Salameche 12", R.drawable.salameche, 0, false))
-
-        albums.add(AlbumModel(1, "my album 1", images1, 1, false))
-        albums.add(AlbumModel(2, "my album 2", images2, 1, false))
-        albums.add(AlbumModel(3, "my album 3", images2, 1, false))
-
-        resetGridViewAndAlbumSelected()
-
+        updateCurrentList()
         initButtons()
 
         return view
@@ -73,14 +56,9 @@ class AlbumFragment(context: Context): Fragment() {
         albumAdapter.notifyDataSetChanged()
     }
 
-    //TODO: When anew user see this view, images list is updated
     override fun onResume() {
         super.onResume()
-        //TODO: Api call completing Images array
-
-        if (albums != null) {
-            //TODO: rebuild adapter with refreshed albums, set adapter ti gridview
-        }
+        updateCurrentList()
     }
 
     private fun initButtons() {
@@ -130,7 +108,20 @@ class AlbumFragment(context: Context): Fragment() {
             dialog.dismiss()
         }
         delete_button.setOnClickListener {
-            //TODO: Api call performing multiple suppression
+            val ids = getAlbumModelIdsFromAlbumSelected()
+            val imageReadRequest = GlobalService.albumService.deleteAlbums(ids)
+            imageReadRequest.enqueue(object : Callback<Any> {
+                override fun onResponse(call: Call<Any>, response: Response<Any>) {
+                    val body = response.body()
+                    body?.let {
+                        Toast.makeText(ctx, it.toString(), Toast.LENGTH_LONG).show()
+                    }
+                }
+                override fun onFailure(call: Call<Any>, t: Throwable) {
+                    Log.d("ERR", t.toString())
+                    Toast.makeText(ctx, "ERROR server", Toast.LENGTH_LONG).show()
+                }
+            })
             for (p in albumsSelected) {
                 if (p.value) {
                     albums.remove(albumAdapter.getItem(p.key))
@@ -163,11 +154,47 @@ class AlbumFragment(context: Context): Fragment() {
             dialog.dismiss()
         }
         not_granted_button.setOnClickListener {
-            //TODO: Api call granted images list access_read
+            for (p in albumsSelected) {
+                if (p.value) {
+                    val position = p.key
+                    val im: AlbumModel = getAlbumModelFromPosition(position)!!
+                    val imageUpdateRequest = GlobalService.albumService.updateAlbum(im.id, im.name, false, im.images)
+                    imageUpdateRequest.enqueue(object : Callback<Any> {
+                        override fun onResponse(call: Call<Any>, response: Response<Any>) {
+                            val body = response.body()
+                            body?.let {
+                                Toast.makeText(ctx, it.toString(), Toast.LENGTH_LONG).show()
+                            }
+                        }
+                        override fun onFailure(call: Call<Any>, t: Throwable) {
+                            Log.d("ERR", t.toString())
+                            Toast.makeText(ctx, "ERROR server", Toast.LENGTH_LONG).show()
+                        }
+                    })
+                }
+            }
             dialog.dismiss()
         }
         granted_button.setOnClickListener {
-            //TODO: Api call not granted images list access_read
+            for (p in albumsSelected) {
+                if (p.value) {
+                    val position = p.key
+                    val im: AlbumModel = getAlbumModelFromPosition(position)!!
+                    val imageUpdateRequest = GlobalService.albumService.updateAlbum(im.id, im.name, true, im.images)
+                    imageUpdateRequest.enqueue(object : Callback<Any> {
+                        override fun onResponse(call: Call<Any>, response: Response<Any>) {
+                            val body = response.body()
+                            body?.let {
+                                Toast.makeText(ctx, it.toString(), Toast.LENGTH_LONG).show()
+                            }
+                        }
+                        override fun onFailure(call: Call<Any>, t: Throwable) {
+                            Log.d("ERR", t.toString())
+                            Toast.makeText(ctx, "ERROR server", Toast.LENGTH_LONG).show()
+                        }
+                    })
+                }
+            }
             dialog.dismiss()
         }
 
@@ -198,8 +225,21 @@ class AlbumFragment(context: Context): Fragment() {
             var invalid_message = ""
             if (name == "") {
                 invalid_message = "Le nom ne peut être vide."
+                Toast.makeText(ctx, invalid_message, Toast.LENGTH_LONG).show()
             } else {
-                //TODO: Api call post images id with name album param
+                val imageUpdateRequest = GlobalService.albumService.createAlbum(name, false, ArrayList())
+                imageUpdateRequest.enqueue(object : Callback<Any> {
+                    override fun onResponse(call: Call<Any>, response: Response<Any>) {
+                        val body = response.body()
+                        body?.let {
+                            Toast.makeText(ctx, it.toString(), Toast.LENGTH_LONG).show()
+                        }
+                    }
+                    override fun onFailure(call: Call<Any>, t: Throwable) {
+                        Log.d("ERR", t.toString())
+                        Toast.makeText(ctx, "ERROR server", Toast.LENGTH_LONG).show()
+                    }
+                })
             }
             dialog.dismiss()
         }
@@ -210,5 +250,43 @@ class AlbumFragment(context: Context): Fragment() {
         val dialogHeight = (displayMetrics.heightPixels * 0.40).toInt()
         dialog.getWindow()?.setLayout(dialogWidth, dialogHeight)
         dialog.show()
+    }
+
+    private fun getAlbumModelFromPosition(position: Int): AlbumModel? {
+        for (im in albums) {
+            if (albums.indexOf(im) == position) {
+                return im
+            }
+        }
+        return null
+    }
+
+    private fun getAlbumModelIdsFromAlbumSelected(): ArrayList<Long> {
+        var ids: ArrayList<Long> = ArrayList()
+
+        for (p in albumsSelected) {
+            if (p.value) {
+                val im = albumAdapter.getItem(p.key) as AlbumModel
+                ids.add(im.id)
+            }
+        }
+        return ids
+    }
+
+    private fun updateCurrentList() {
+        val imageReadRequest = GlobalService.albumService.readAlbums(null)
+        imageReadRequest.enqueue(object : Callback<ArrayList<AlbumModel>> {
+            override fun onResponse(call: Call<ArrayList<AlbumModel>>, response: Response<ArrayList<AlbumModel>>) {
+                val body = response.body()
+                body?.let {
+                    albums = it
+                    resetGridViewAndAlbumSelected()
+                }
+            }
+            override fun onFailure(call: Call<ArrayList<AlbumModel>>, t: Throwable) {
+                Log.d("ERR", t.toString())
+                Toast.makeText(ctx, "ERROR server: read", Toast.LENGTH_LONG).show()
+            }
+        })
     }
 }

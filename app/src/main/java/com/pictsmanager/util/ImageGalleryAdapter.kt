@@ -1,6 +1,8 @@
 package com.pictsmanager.util
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -41,9 +43,16 @@ class ImageGalleryAdapter(var ctx: Context, var images: ArrayList<ImageModel>): 
             viewHolder = view.tag as ViewHolder
         }
 
-        var image: ImageModel = getItem(position) as ImageModel
-        //viewHolder.textViewImage.text = image.name
-        viewHolder.imageViewImage.setImageResource(image.image)
+        val image: ImageModel = getItem(position) as ImageModel
+        val imArr = image.image
+        val imArrLen = imArr.size
+        val ba = ByteArray(imArrLen)
+        for (b in imArr.indices) {
+            ba[b] = imArr[b].toByte()
+        }
+        var bmp: Bitmap = BitmapFactory.decodeByteArray(ba, 0, imArrLen)
+        //viewHolder.imageViewImage.setImageBitmap(Bitmap.createScaledBitmap(bmp, 200, 200, false))
+        viewHolder.imageViewImage.setImageBitmap(bmp)
 
         return view as View
     }
