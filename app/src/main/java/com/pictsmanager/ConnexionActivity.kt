@@ -1,10 +1,10 @@
 package com.pictsmanager
 
 import android.content.Intent
+import android.graphics.Point
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -27,18 +27,10 @@ class ConnexionActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_connexion)
-/*        if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction()
-                .replace(
-                    R.id.container,
-                    MainFragment.newInstance()
-                )
-                .commitNow()
-        }*/
 
         initButtons()
 
-        // TODO : Comment the following line to pass-by the connexion verification
+        // Comment the following line to pass-by the connexion verification
         enableConnexionButton(false)
     }
 
@@ -136,7 +128,7 @@ class ConnexionActivity : AppCompatActivity() {
             }
 
             override fun onFailure(call: Call<SuccessModel>, t: Throwable) {
-                Log.d("ERR", t.toString())
+                t.printStackTrace()
                 Toast.makeText(
                     this@ConnexionActivity,
                     "Wrong Email or Password",

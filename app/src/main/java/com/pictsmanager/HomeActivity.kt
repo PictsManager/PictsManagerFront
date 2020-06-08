@@ -4,18 +4,13 @@ import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.ImageFormat
-import android.graphics.SurfaceTexture
+import android.graphics.*
 import android.hardware.camera2.*
 import android.hardware.camera2.CameraCaptureSession.CaptureCallback
 import android.media.Image
 import android.media.ImageReader
 import android.media.ImageReader.OnImageAvailableListener
-import android.net.Uri
 import android.os.Bundle
-import android.os.Environment
 import android.os.Handler
 import android.os.HandlerThread
 import android.util.Log
@@ -29,10 +24,9 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.core.content.FileProvider
+import com.pictsmanager.util.GlobalStatus
 import kotlinx.android.synthetic.main.activity_home.*
 import java.io.*
-import java.text.SimpleDateFormat
 import java.util.*
 
 class HomeActivity : AppCompatActivity() {
@@ -44,10 +38,10 @@ class HomeActivity : AppCompatActivity() {
         private const val REQUEST_CAMERA_PERMISSION = 200
 
         init {
-            ORIENTATION.append(Surface.ROTATION_0, 90)
-            ORIENTATION.append(Surface.ROTATION_90, 0)
-            ORIENTATION.append(Surface.ROTATION_180, 270)
-            ORIENTATION.append(Surface.ROTATION_270, 180)
+            ORIENTATION.append(Surface.ROTATION_0, 0)
+            ORIENTATION.append(Surface.ROTATION_90, 90)
+            ORIENTATION.append(Surface.ROTATION_180, 180)
+            ORIENTATION.append(Surface.ROTATION_270, 270)
         }
     }
 
@@ -86,7 +80,7 @@ class HomeActivity : AppCompatActivity() {
         textureView!!.surfaceTextureListener = textureListener
         btnCapture = findViewById<View>(R.id.btnCapture) as Button
         btnCapture!!.setOnClickListener { takePicture() }
-        initButtons();
+        initButtons()
     }
 
     private fun initButtons() {
@@ -108,41 +102,32 @@ class HomeActivity : AppCompatActivity() {
 
     private fun takePicture() {
         if (cameraDevice == null) return
-        val manager =
-            getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        val manager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
         try {
-            val characteristics =
-                manager.getCameraCharacteristics(cameraDevice!!.id)
-            var jpegSizes: Array<Size>? = null
-            if (characteristics != null) jpegSizes =
+            val characteristics = manager.getCameraCharacteristics(cameraDevice!!.id)
+            var jpegSizes: Array<Size>? =
                 characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
                     ?.getOutputSizes(ImageFormat.JPEG)
 
             // Capture image with custom size
-            var width = 600
-            var height = 700
+/*            var width = 700
+            var height = 1200
 
-            if (jpegSizes != null && jpegSizes.size > 0) {
+            if (jpegSizes != null && jpegSizes.isNotEmpty()) {
                 width = jpegSizes[0].width
                 height = jpegSizes[0].height
-            }
-            val reader =
-                ImageReader.newInstance(width, height, ImageFormat.JPEG, 1)
-            val outputSurface: MutableList<Surface> =
-                ArrayList(2)
+            }*/
+            val reader = ImageReader.newInstance(GlobalStatus.WIDTH, GlobalStatus.HEIGHT, ImageFormat.JPEG, 1)
+            val outputSurface: MutableList<Surface> = ArrayList(2)
             outputSurface.add(reader.surface)
             outputSurface.add(Surface(textureView!!.surfaceTexture))
             val captureBuilder =
                 cameraDevice!!.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE)
+            // Check orientation base on device
+            captureBuilder.set(CaptureRequest.JPEG_ORIENTATION, 0)
+
             captureBuilder.addTarget(reader.surface)
             captureBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO)
-
-            // Check orientation base on device
-            val rotation = windowManager.defaultDisplay.rotation
-            captureBuilder.set(
-                CaptureRequest.JPEG_ORIENTATION,
-                ORIENTATION[rotation]
-            )
 
             val readerListener: OnImageAvailableListener = object : OnImageAvailableListener {
                 override fun onImageAvailable(reader: ImageReader) {
@@ -166,14 +151,16 @@ class HomeActivity : AppCompatActivity() {
                 private fun save(bytes: ByteArray) {
                     var outputStream: OutputStream? = null
                     try {
-                        var bmp : Bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                        var bmp: Bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
                         Log.d("IMAGE SIZE ::", bmp.height.toString())
 
-                        var filePath: String = tempFileImage(this@HomeActivity, bmp, "name")
+                        val rotateImg = rotateImage(bmp, 90)
+
+                        var filePath: String = tempFileImage(this@HomeActivity, rotateImg, "name")
 
                         val intent = Intent(this@HomeActivity, PictureActivity::class.java)
 
-                        intent.putExtra("PictureTaked", filePath)
+                        intent.putExtra("PictureTaken", filePath)
 
                         startActivity(intent)
                     } finally {
@@ -189,7 +176,6 @@ class HomeActivity : AppCompatActivity() {
                     result: TotalCaptureResult
                 ) {
                     super.onCaptureCompleted(session, request, result)
-
                     createCameraPreview()
                 }
             }
@@ -219,16 +205,16 @@ class HomeActivity : AppCompatActivity() {
 
     public fun tempFileImage(context: Context, bitmap: Bitmap, name: String): String {
 
-        var outputDir : File = context.cacheDir
-        var imageFile : File = File(outputDir, name + ".jpg")
+        var outputDir: File = context.cacheDir
+        var imageFile: File = File(outputDir, name + ".jpg")
 
-        var os : OutputStream
+        var os: OutputStream
         try {
             os = FileOutputStream(imageFile)
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, os)
             os.flush()
             os.close()
-        } catch (e : Exception) {
+        } catch (e: Exception) {
             e.printStackTrace()
         }
 
@@ -373,5 +359,14 @@ class HomeActivity : AppCompatActivity() {
         mBackgroundThread = HandlerThread("Camera Background")
         mBackgroundThread!!.start()
         mBackgroundHandler = Handler(mBackgroundThread!!.looper)
+    }
+
+    private fun rotateImage(source: Bitmap, angle: Int): Bitmap {
+        val matrix = Matrix()
+        matrix.postRotate(angle.toFloat())
+        return Bitmap.createBitmap(
+            source, 0, 0, source.width, source.height,
+            matrix, true
+        )
     }
 }
