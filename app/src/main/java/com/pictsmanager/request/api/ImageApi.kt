@@ -6,22 +6,25 @@ import retrofit2.http.*
 
 interface ImageApi {
 
+    @FormUrlEncoded
     @POST("/image/create")
-    fun createImage(@Field("name") name: String, @Field("access_read") access_read: Boolean, @Field("image") image: ArrayList<Int>): Call<Any>
+    fun createImage(@Header("authorization") authorization: String, @Field("name") name: String, @Field("access_read") access_read: Boolean, @Field("image") image: ArrayList<Int>): Call<Any>
 
     @DELETE("/image/delete")
-    fun deleteImage(@Query("id") id: Long): Call<Any>
+    fun deleteImage(@Header("authorization") authorization: String, @Query("id") id: Long): Call<Any>
 
-    @DELETE("/image/delete/multiple")
-    fun deleteImages(@Field("ids") ids: ArrayList<Long>): Call<Any>
+    @FormUrlEncoded
+    @POST("/image/delete/multiple")
+    fun deleteImages(@Header("authorization") authorization: String, @Field("ids") ids: ArrayList<Long>): Call<Any>
 
+    @FormUrlEncoded
     @PUT("/image/update")
-    fun updateImage(@Field("id") id: Long, @Field("name") name: String, @Field("acces_read") access_read: Boolean): Call<Any>
+    fun updateImage(@Header("authorization") authorization: String, @Field("id") id: Long, @Field("name") name: String, @Field("acces_read") access_read: Boolean): Call<Any>
 
     @GET("/image/read")
-    fun readImages(@Query("id") id: Long?): Call<ArrayList<ImageModel>>
+    fun readImages(@Header("authorization") authorization: String, @Query("id") id: Long?): Call<ArrayList<ImageModel>>
 
     @GET("/image/public")
-    fun readPublic(): Call<ArrayList<ImageModel>>
+    fun readPublic(@Header("authorization") authorization: String): Call<ArrayList<ImageModel>>
 
 }

@@ -8,12 +8,14 @@ import android.util.Log
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.google.gson.Gson
 import com.pictsmanager.request.model.SuccessModel
 import com.pictsmanager.request.model.UserModel
 import com.pictsmanager.request.service.UserService
 import com.pictsmanager.util.EnumTypeInput
 import com.pictsmanager.util.GlobalStatus
 import kotlinx.android.synthetic.main.activity_connexion.*
+import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -35,6 +37,11 @@ class ConnexionActivity : AppCompatActivity() {
                 )
                 .commitNow()
         }*/
+
+        var emailInput = findViewById(R.id.emailInput) as EditText
+        emailInput.setText("pierre@mail.com")
+        var pwdInput = findViewById(R.id.passInput) as EditText
+        pwdInput.setText("pierre")
 
         initButtons()
 
@@ -58,7 +65,6 @@ class ConnexionActivity : AppCompatActivity() {
             val emailInputVal = emailInput.text.toString()
             val passInputVal = passInput.text.toString()
 
-/*             TODO : Connect with the real API*/
             tryConnexion(emailInputVal, passInputVal)
 
 
@@ -125,14 +131,20 @@ class ConnexionActivity : AppCompatActivity() {
         val userConnexionRequest = UserService.service.tryConnexion(email, password)
         userConnexionRequest.enqueue(object : Callback<SuccessModel> {
             override fun onResponse(call: Call<SuccessModel>, response: Response<SuccessModel>) {
-                val body = response.body()
-                body?.let {
+                if (response.code() == 400 || response.code() == 418) {
+                    val jsonObject = JSONObject(response.errorBody()!!.string())
+                    System.out.println(jsonObject)
+                    Toast.makeText(this@ConnexionActivity, jsonObject.toString(), Toast.LENGTH_SHORT).show()
+                } else if (response.code() == 200) {
+                    GlobalStatus.JWT = response.headers().get("JWT").toString()
+                    Toast.makeText(this@ConnexionActivity, "Connexion Success", Toast.LENGTH_SHORT)
+                        .show()
+                    val intent = Intent(this@ConnexionActivity, HomeActivity::class.java)
+                    startActivity(intent)
+                } else {
+                    System.out.println("Untreated error")
+                    Toast.makeText(this@ConnexionActivity, "Untreated error", Toast.LENGTH_SHORT).show()
                 }
-                GlobalStatus.JWT = response.headers().get("JWT").toString()
-                Toast.makeText(this@ConnexionActivity, "Connexion Success", Toast.LENGTH_SHORT)
-                    .show()
-                val intent = Intent(this@ConnexionActivity, HomeActivity::class.java)
-                startActivity(intent)
             }
 
             override fun onFailure(call: Call<SuccessModel>, t: Throwable) {

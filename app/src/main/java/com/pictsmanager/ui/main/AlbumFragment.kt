@@ -12,15 +12,21 @@ import android.view.Window
 import android.widget.*
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.gson.Gson
 import com.pictsmanager.R
 import com.pictsmanager.request.model.AlbumModel
 import com.pictsmanager.request.model.ImageModel
 import com.pictsmanager.request.service.GlobalService
 import com.pictsmanager.util.AlbumGalleryAdapter
+import com.pictsmanager.util.GlobalStatus
 import com.pictsmanager.util.ImageGalleryAdapter
+import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.io.Console
+import java.lang.Math.log
+import java.lang.StrictMath.log
 
 class AlbumFragment(context: Context): Fragment() {
 
@@ -109,12 +115,19 @@ class AlbumFragment(context: Context): Fragment() {
         }
         delete_button.setOnClickListener {
             val ids = getAlbumModelIdsFromAlbumSelected()
-            val imageReadRequest = GlobalService.albumService.deleteAlbums(ids)
+            val imageReadRequest = GlobalService.albumService.deleteAlbums(GlobalStatus.JWT, ids)
             imageReadRequest.enqueue(object : Callback<Any> {
                 override fun onResponse(call: Call<Any>, response: Response<Any>) {
-                    val body = response.body()
-                    body?.let {
-                        Toast.makeText(ctx, it.toString(), Toast.LENGTH_LONG).show()
+                    if (response.code() == 400 || response.code() == 418) {
+                        val jsonObject = JSONObject(response.errorBody()!!.string())
+                        System.out.println(jsonObject)
+                        Toast.makeText(ctx, jsonObject.toString(), Toast.LENGTH_SHORT).show()
+                    } else if (response.code() == 200) {
+                        updateCurrentList()
+                        Toast.makeText(ctx, "Successfully deleted", Toast.LENGTH_SHORT).show()
+                    } else {
+                        System.out.println("Untreated error")
+                        Toast.makeText(ctx, "Untreated error", Toast.LENGTH_SHORT).show()
                     }
                 }
                 override fun onFailure(call: Call<Any>, t: Throwable) {
@@ -122,11 +135,6 @@ class AlbumFragment(context: Context): Fragment() {
                     Toast.makeText(ctx, "ERROR server", Toast.LENGTH_LONG).show()
                 }
             })
-            for (p in albumsSelected) {
-                if (p.value) {
-                    albums.remove(albumAdapter.getItem(p.key))
-                }
-            }
             resetGridViewAndAlbumSelected()
             dialog.dismiss()
         }
@@ -158,12 +166,18 @@ class AlbumFragment(context: Context): Fragment() {
                 if (p.value) {
                     val position = p.key
                     val im: AlbumModel = getAlbumModelFromPosition(position)!!
-                    val imageUpdateRequest = GlobalService.albumService.updateAlbum(im.id, im.name, false, im.images)
+                    val imageUpdateRequest = GlobalService.albumService.updateAlbum(GlobalStatus.JWT, im.id, im.name, false, im.images)
                     imageUpdateRequest.enqueue(object : Callback<Any> {
                         override fun onResponse(call: Call<Any>, response: Response<Any>) {
-                            val body = response.body()
-                            body?.let {
-                                Toast.makeText(ctx, it.toString(), Toast.LENGTH_LONG).show()
+                            if (response.code() == 400 || response.code() == 418) {
+                                val jsonObject = JSONObject(response.errorBody()!!.string())
+                                System.out.println(jsonObject)
+                                Toast.makeText(ctx, jsonObject.toString(), Toast.LENGTH_SHORT).show()
+                            } else if (response.code() == 200) {
+                                Toast.makeText(ctx, "Successfully not granted", Toast.LENGTH_SHORT).show()
+                            } else {
+                                System.out.println("Untreated error")
+                                Toast.makeText(ctx, "Untreated error", Toast.LENGTH_SHORT).show()
                             }
                         }
                         override fun onFailure(call: Call<Any>, t: Throwable) {
@@ -180,12 +194,18 @@ class AlbumFragment(context: Context): Fragment() {
                 if (p.value) {
                     val position = p.key
                     val im: AlbumModel = getAlbumModelFromPosition(position)!!
-                    val imageUpdateRequest = GlobalService.albumService.updateAlbum(im.id, im.name, true, im.images)
+                    val imageUpdateRequest = GlobalService.albumService.updateAlbum(GlobalStatus.JWT, im.id, im.name, true, null)
                     imageUpdateRequest.enqueue(object : Callback<Any> {
                         override fun onResponse(call: Call<Any>, response: Response<Any>) {
-                            val body = response.body()
-                            body?.let {
-                                Toast.makeText(ctx, it.toString(), Toast.LENGTH_LONG).show()
+                            if (response.code() == 400 || response.code() == 418) {
+                                val jsonObject = JSONObject(response.errorBody()!!.string())
+                                System.out.println(jsonObject)
+                                Toast.makeText(ctx, jsonObject.toString(), Toast.LENGTH_SHORT).show()
+                            } else if (response.code() == 200) {
+                                Toast.makeText(ctx, "Successfully granted", Toast.LENGTH_SHORT).show()
+                            } else {
+                                System.out.println("Untreated error")
+                                Toast.makeText(ctx, "Untreated error", Toast.LENGTH_SHORT).show()
                             }
                         }
                         override fun onFailure(call: Call<Any>, t: Throwable) {
@@ -209,7 +229,7 @@ class AlbumFragment(context: Context): Fragment() {
     private fun showNewDialog(context: Context) {
         val dialog = Dialog(context)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-        dialog.setContentView(R.layout.add_dialog)
+        dialog.setContentView(R.layout.new_album_dialog)
         dialog.setCanceledOnTouchOutside(false)
         dialog.setCancelable(true)
 
@@ -227,16 +247,23 @@ class AlbumFragment(context: Context): Fragment() {
                 invalid_message = "Le nom ne peut être vide."
                 Toast.makeText(ctx, invalid_message, Toast.LENGTH_LONG).show()
             } else {
-                val imageUpdateRequest = GlobalService.albumService.createAlbum(name, false, ArrayList())
+                val imageUpdateRequest = GlobalService.albumService.createAlbum(GlobalStatus.JWT, name, false)
                 imageUpdateRequest.enqueue(object : Callback<Any> {
                     override fun onResponse(call: Call<Any>, response: Response<Any>) {
-                        val body = response.body()
-                        body?.let {
-                            Toast.makeText(ctx, it.toString(), Toast.LENGTH_LONG).show()
+                        if (response.code() == 400 || response.code() == 418) {
+                            val jsonObject = JSONObject(response.errorBody()!!.string())
+                            System.out.println(jsonObject)
+                            Toast.makeText(ctx, jsonObject.toString(), Toast.LENGTH_SHORT).show()
+                        } else if (response.code() == 200) {
+                            Toast.makeText(ctx, "Successfully create", Toast.LENGTH_SHORT).show()
+                            updateCurrentList()
+                        } else {
+                            System.out.println("Untreated error")
+                            Toast.makeText(ctx, "Untreated error", Toast.LENGTH_SHORT).show()
                         }
                     }
                     override fun onFailure(call: Call<Any>, t: Throwable) {
-                        Log.d("ERR", t.toString())
+                        System.out.println(t.toString())
                         Toast.makeText(ctx, "ERROR server", Toast.LENGTH_LONG).show()
                     }
                 })
@@ -274,7 +301,7 @@ class AlbumFragment(context: Context): Fragment() {
     }
 
     private fun updateCurrentList() {
-        val imageReadRequest = GlobalService.albumService.readAlbums(null)
+        val imageReadRequest = GlobalService.albumService.readAlbums(GlobalStatus.JWT, null)
         imageReadRequest.enqueue(object : Callback<ArrayList<AlbumModel>> {
             override fun onResponse(call: Call<ArrayList<AlbumModel>>, response: Response<ArrayList<AlbumModel>>) {
                 val body = response.body()

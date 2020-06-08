@@ -6,22 +6,25 @@ import retrofit2.http.*
 
 interface AlbumApi {
 
+    @FormUrlEncoded
     @POST("/album/create")
-    fun createAlbum(@Field("name") name: String, @Field("access_read") access_read: Boolean, @Field("images") album: ArrayList<Int>): Call<Any>
+    fun createAlbum(@Header("authorization") authorization: String, @Field("name") name: String, @Field("access_read") access_read: Boolean): Call<Any>
 
     @DELETE("/album/delete")
-    fun deleteAlbum(@Query("id") id: Long): Call<Any>
+    fun deleteAlbum(@Header("authorization") authorization: String, @Query("id") id: Long): Call<Any>
 
-    @DELETE("/album/delete/multiple")
-    fun deleteAlbums(@Field("ids") ids: ArrayList<Long>): Call<Any>
+    @FormUrlEncoded
+    @POST("/album/delete/multiple")
+    fun deleteAlbums(@Header("authorization") authorization: String, @Field("ids") ids: ArrayList<Long>): Call<Any>
 
+    @FormUrlEncoded
     @PUT("/album/update")
-    fun updateAlbum(@Field("id") id: Long, @Field("name") name: String, @Field("access_read") access_read: Boolean, @Field("images") images: ArrayList<Long>): Call<Any>
+    fun updateAlbum(@Header("authorization") authorization: String, @Field("id") id: Long, @Field("name") name: String, @Field("access_read") access_read: Boolean, @Field("images") images: ArrayList<Long>?): Call<Any>
 
     @GET("/album/read")
-    fun readAlbums(@Query("id") id: Long?): Call<ArrayList<AlbumModel>>
+    fun readAlbums(@Header("authorization") authorization: String, @Query("id") id: Long?): Call<ArrayList<AlbumModel>>
 
     @GET("/album/public")
-    fun readPublic(): Call<ArrayList<AlbumModel>>
+    fun readPublic(@Header("authorization") authorization: String): Call<ArrayList<AlbumModel>>
 
 }
