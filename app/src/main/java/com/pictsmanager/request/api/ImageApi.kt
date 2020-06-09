@@ -1,24 +1,29 @@
 package com.pictsmanager.request.api
 
-import android.graphics.Bitmap
 import com.pictsmanager.request.model.ImageModel
-import com.pictsmanager.request.model.SuccessModel
 import retrofit2.Call
 import retrofit2.http.*
-import java.io.FileOutputStream
-
 
 interface ImageApi {
 
+    @FormUrlEncoded
     @POST("/image/create")
-    fun tryAddImage(@Header("authorization") authorization: String, @Body imageModel: ImageModel): Call<SuccessModel>
+    fun createImage(@Header("authorization") authorization: String, @Field("name") name: String, @Field("access_read") access_read: Boolean, @Field("image") image: ArrayList<Int>): Call<Any>
 
-/*
-    @POST("/image/delete")
-    fun tryCreateAccount(@Body userModel: UserModel): Call<UserModel>
-*/
+    @DELETE("/image/delete")
+    fun deleteImage(@Header("authorization") authorization: String, @Query("id") id: Long): Call<Any>
 
-/*    @POST("/api/users")
-    fun createUser(@Body user: UserModel): Call<UserModel>*/
+    @FormUrlEncoded
+    @POST("/image/delete/multiple")
+    fun deleteImages(@Header("authorization") authorization: String, @Field("ids") ids: ArrayList<Long>): Call<Any>
 
+    @FormUrlEncoded
+    @PUT("/image/update")
+    fun updateImage(@Header("authorization") authorization: String, @Field("id") id: Long, @Field("name") name: String, @Field("acces_read") access_read: Boolean): Call<Any>
+
+    @GET("/image/read")
+    fun readImages(@Header("authorization") authorization: String, @Query("id") id: Long?): Call<ArrayList<ImageModel>>
+
+    @GET("/image/public")
+    fun readPublic(@Header("authorization") authorization: String): Call<ArrayList<ImageModel>>
 }
