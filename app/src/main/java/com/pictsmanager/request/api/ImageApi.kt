@@ -8,7 +8,7 @@ interface ImageApi {
 
     @FormUrlEncoded
     @POST("/image/create")
-    fun createImage(@Header("authorization") authorization: String, @Field("name") name: String, @Field("access_read") access_read: Boolean, @Field("image") image: ArrayList<Int>): Call<Any>
+    fun createImage(@Header("authorization") authorization: String, @Field("name") name: String, @Field("access_read") access_read: Boolean, @Field("image") image: ByteArray): Call<Any>
 
     @DELETE("/image/delete")
     fun deleteImage(@Header("authorization") authorization: String, @Query("id") id: Long): Call<Any>

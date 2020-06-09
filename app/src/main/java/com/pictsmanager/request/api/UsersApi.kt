@@ -1,23 +1,16 @@
 package com.pictsmanager.request.api
 
-import com.pictsmanager.request.model.SuccessModel
 import com.pictsmanager.request.model.UserModel
 import retrofit2.Call
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.Query
+import retrofit2.http.*
 
 
 interface UsersApi {
 
     @GET("/user/login")
-    fun tryConnexion(@Query("email") email: String, @Query("password") password: String): Call<SuccessModel>
+    fun connexion(@Query("email") email: String, @Query("password") password: String): Call<Any>
 
     @POST("/user/register")
-    fun tryCreateAccount(@Body userModel: UserModel): Call<UserModel>
-
-/*    @POST("/api/users")
-    fun createUser(@Body user: UserModel): Call<UserModel>*/
+    fun createAccount(@Field("email") email: String, @Field("password") password: String): Call<Any>
 
 }

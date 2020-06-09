@@ -2,7 +2,6 @@ package com.pictsmanager.ui.main
 
 import android.app.Dialog
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.util.Log
@@ -13,18 +12,12 @@ import android.view.Window
 import android.widget.*
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.gson.Gson
-import com.pictsmanager.HomeActivity
 import com.pictsmanager.R
 import com.pictsmanager.request.model.AlbumModel
 import com.pictsmanager.request.model.ImageModel
-import com.pictsmanager.request.model.SuccessModel
 import com.pictsmanager.request.service.GlobalService
-import com.pictsmanager.request.service.UserService
 import com.pictsmanager.util.GlobalStatus
 import com.pictsmanager.util.ImageGalleryAdapter
-import kotlinx.android.synthetic.main.activity_gallery.*
-import kotlinx.android.synthetic.main.image_fragment.*
 import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback

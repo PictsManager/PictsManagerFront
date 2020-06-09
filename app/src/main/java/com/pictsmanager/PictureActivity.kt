@@ -12,11 +12,10 @@ import android.widget.ImageView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import android.widget.Toast
-import com.pictsmanager.request.model.ImageModel
-import com.pictsmanager.request.model.SuccessModel
-import com.pictsmanager.request.service.ImageService
+import com.pictsmanager.request.service.GlobalService
 import com.pictsmanager.util.GlobalStatus
 import kotlinx.android.synthetic.main.activity_picture.*
+import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -131,21 +130,25 @@ class PictureActivity : AppCompatActivity() {
     }
 
     private fun tryAddImage(name: String, access_read: Boolean, byteArray: ByteArray) {
-        val imageModel = ImageModel(name, access_read, byteArray)
-        val userConnexionRequest = ImageService.service.tryAddImage(GlobalStatus.JWT, imageModel)
-        userConnexionRequest.enqueue(object : Callback<SuccessModel> {
-            override fun onResponse(call: Call<SuccessModel>, response: Response<SuccessModel>) {
-                Log.d("CON", response.toString())
-
-                if (response.code() < 400) {
+        val userConnexionRequest = GlobalService.imageService.createImage(GlobalStatus.JWT, name, access_read, byteArray)
+        userConnexionRequest.enqueue(object : Callback<Any> {
+            override fun onResponse(call: Call<Any>, response: Response<Any>) {
+                if (response.code() == 400 || response.code() == 418) {
+                    val jsonObject = JSONObject(response.errorBody()!!.string())
+                    System.out.println(jsonObject)
+                    Toast.makeText(this@PictureActivity, jsonObject.toString(), Toast.LENGTH_SHORT).show()
+                } else if (response.code() == 200) {
                     Toast.makeText(this@PictureActivity, "Save Image Success", Toast.LENGTH_SHORT)
                         .show()
                     val intent = Intent(this@PictureActivity, HomeActivity::class.java)
                     startActivity(intent)
+                } else {
+                    System.out.println("Untreated error")
+                    Toast.makeText(this@PictureActivity, "Untreated error", Toast.LENGTH_SHORT).show()
                 }
             }
 
-            override fun onFailure(call: Call<SuccessModel>, t: Throwable) {
+            override fun onFailure(call: Call<Any>, t: Throwable) {
                 Log.d("ERR", t.toString())
                 Toast.makeText(
                     this@PictureActivity,
