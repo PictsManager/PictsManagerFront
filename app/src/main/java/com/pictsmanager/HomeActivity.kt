@@ -109,14 +109,7 @@ class HomeActivity : AppCompatActivity() {
                 characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
                     ?.getOutputSizes(ImageFormat.JPEG)
 
-            // Capture image with custom size
-/*            var width = 700
-            var height = 1200
 
-            if (jpegSizes != null && jpegSizes.isNotEmpty()) {
-                width = jpegSizes[0].width
-                height = jpegSizes[0].height
-            }*/
             val reader = ImageReader.newInstance(GlobalStatus.WIDTH, GlobalStatus.HEIGHT, ImageFormat.JPEG, 1)
             val outputSurface: MutableList<Surface> = ArrayList(2)
             outputSurface.add(reader.surface)
@@ -225,6 +218,9 @@ class HomeActivity : AppCompatActivity() {
         try {
             val texture = textureView!!.surfaceTexture!!
             texture.setDefaultBufferSize(imageDimension!!.width, imageDimension!!.height)
+            // Camera will rotate and inverse value of height and width
+//            GlobalStatus.HEIGHT = imageDimension!!.width
+//            GlobalStatus.WIDTH = imageDimension!!.height
             val surface = Surface(texture)
             captureRequestBuilder =
                 cameraDevice!!.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)

@@ -9,9 +9,9 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import android.widget.Toast
 import com.pictsmanager.request.model.ImageModel
 import com.pictsmanager.request.model.SuccessModel
 import com.pictsmanager.request.service.ImageService
@@ -21,18 +21,17 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.io.File
-import java.nio.ByteBuffer
-
 
 class PictureActivity : AppCompatActivity() {
     private var imagePictureView: ImageView? = null
 
     private var nameImg: String = System.currentTimeMillis().toString()
     private var accessReadImg: Boolean = false
-    private var image: Bitmap = Bitmap.createBitmap(GlobalStatus.WIDTH, GlobalStatus.HEIGHT, Bitmap.Config.ARGB_8888)
-    private val confBitmap = Bitmap.Config.ARGB_8888
-    private val factor = 8 // sizeReduction = factor * factor
+    private val factor = 2 // sizeReduction = factor * factor // 8
     private val qualityLoss = 20 // out of 255
+    private var image: Bitmap? = null
+    private var imageByteArray: ByteArray = byteArrayOf()
+    private val confBitmap = Bitmap.Config.ARGB_8888
 
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,32 +42,60 @@ class PictureActivity : AppCompatActivity() {
         val filePath = intent.getStringExtra("PictureTaken")
         var file = File(filePath)
 
-        var bitmap: Bitmap = BitmapFactory.decodeFile(file.absolutePath)
-        var resizedImage = resizeBitmap(bitmap, GlobalStatus.WIDTH, GlobalStatus.HEIGHT)
-
-        resizedImage = sizeReduction(resizedImage)
-        resizedImage = loseImageQuality(resizedImage)
-
-        val byteArray = bitmapToByteArray(resizedImage)
-
-        Log.d("IMG", "${image.byteCount} ${byteArray.size}" )
-
-        val bitmapRec = byteArrayToBitmap(byteArray)
-        if (bitmapRec != null) {
-            imagePictureView!!.setImageBitmap(bitmapRec)
-        }
+        var bitmap : Bitmap = BitmapFactory.decodeFile(file.absolutePath)
+        bitmap = sizeReduction(bitmap)
+        image = loseImageQuality(bitmap)
+        imagePictureView!!.setImageBitmap(image)
         initButtons()
     }
 
-    fun resizeBitmap(bitmap: Bitmap, width: Int, height: Int): Bitmap {
-        return Bitmap.createScaledBitmap(
-            bitmap,
-            width,
-            height,
-            false
-        )
+    @RequiresApi(Build.VERSION_CODES.Q)
+    fun compressImageRLE(resizedBitmap: Bitmap) : ByteArray {
+        var array = byteArrayOf()
+        val redArray = ArrayList<Int>()
+        val greenArray = ArrayList<Int>()
+        val blueArray = ArrayList<Int>()
+
+        for (y in 0 until resizedBitmap.height) {
+            for (x in 0 until resizedBitmap.width) {
+                redArray.add(Color.red(resizedBitmap.getPixel(x, y)))
+                greenArray.add(Color.green(resizedBitmap.getPixel(x, y)))
+                blueArray.add(Color.blue(resizedBitmap.getPixel(x, y)))
+            }
+        }
+        array = appendColorInByteArray(redArray, array)
+        array = appendColorInByteArray(greenArray, array)
+        array = appendColorInByteArray(blueArray, array)
+        return array
     }
 
+    private fun appendColorInByteArray(colorArray : ArrayList<Int>, array : ByteArray) : ByteArray{
+        var i: Int = 1
+        var byteArray = array
+        var end = false
+        var a = 0
+        for (x in 0 until colorArray.size) {
+            if (((x + 1) < colorArray.size) && (colorArray[x] == colorArray[x + 1]) && i < 125) {
+                i += 1
+                a = x
+                end = true
+            } else {
+                end = false
+                byteArray += i.toByte()
+                byteArray += colorArray[x].toByte()
+                i = 1
+            }
+        }
+        if (end) {
+            byteArray += i.toByte()
+            byteArray += colorArray[a].toByte()
+        }
+
+        return byteArray
+    }
+
+
+    @RequiresApi(Build.VERSION_CODES.Q)
     private fun initButtons() {
         buttonBackCamera.setOnClickListener {
             val intent = Intent(this@PictureActivity, HomeActivity::class.java)
@@ -81,14 +108,17 @@ class PictureActivity : AppCompatActivity() {
         }
 
         buttonValidatePicture.setOnClickListener {
-            tryAddImage(nameImg, accessReadImg, image)
+            imageByteArray = image?.let { it1 -> compressImageRLE(it1) }!!
+            tryAddImage(nameImg, accessReadImg, imageByteArray)
         }
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun sizeReduction(bitmap: Bitmap): Bitmap {
-        val w = bitmap.width / factor
-        val h = bitmap.height / factor
+        GlobalStatus.IMG_H = bitmap.height / factor
+        GlobalStatus.IMG_W = bitmap.width / factor
+        val w = GlobalStatus.IMG_W
+        val h = GlobalStatus.IMG_H
 
         val compressedImage: Bitmap = Bitmap.createBitmap(w, h, confBitmap)
         for (x in 0 until w) {
@@ -100,10 +130,7 @@ class PictureActivity : AppCompatActivity() {
         return compressedImage
     }
 
-    private fun tryAddImage(name: String, access_read: Boolean, image: Bitmap) {
-
-        val byteArray = bitmapToByteArray(image)
-
+    private fun tryAddImage(name: String, access_read: Boolean, byteArray: ByteArray) {
         val imageModel = ImageModel(name, access_read, byteArray)
         val userConnexionRequest = ImageService.service.tryAddImage(GlobalStatus.JWT, imageModel)
         userConnexionRequest.enqueue(object : Callback<SuccessModel> {
@@ -129,29 +156,16 @@ class PictureActivity : AppCompatActivity() {
         })
     }
 
-    private fun bitmapToByteArray(bitmap: Bitmap): ByteArray {
-        val size: Int = bitmap.rowBytes * bitmap.height
-        val byteBuffer: ByteBuffer = ByteBuffer.allocate(size)
-        bitmap.copyPixelsToBuffer(byteBuffer)
-        return byteBuffer.array()
-    }
-
-    private fun byteArrayToBitmap(byteArray: ByteArray): Bitmap? {
-
-        val bitmap = Bitmap.createBitmap(GlobalStatus.WIDTH / factor, GlobalStatus.HEIGHT / factor, confBitmap)
-        val buffer = ByteBuffer.wrap(byteArray)
-        bitmap.copyPixelsFromBuffer(buffer)
-        return bitmap
-    }
-
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun loseImageQuality(bitmap: Bitmap): Bitmap {
-        for (x in 0 until bitmap.width) {
-            for (y in 0 until bitmap.height) {
-                bitmap.setPixel(x, y, loseColorQuality(bitmap.getColor(x, y)))
+        val newBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true)
+        for (x in 0 until newBitmap.width) {
+            for (y in 0 until newBitmap.height) {
+                val c = loseColorQuality(newBitmap.getColor(x, y))
+                newBitmap.setPixel(x, y, c)
             }
         }
-        return bitmap
+        return newBitmap
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
