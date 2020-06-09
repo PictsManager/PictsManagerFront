@@ -147,7 +147,7 @@ class CreateAccountActivity : AppCompatActivity() {
             }
 
             override fun onFailure(call: Call<UserModel>, t: Throwable) {
-
+                t.printStackTrace()
                 Toast.makeText(
                     this@CreateAccountActivity,
                     "Email already taken",
