@@ -13,8 +13,8 @@ class GlobalStatus {
         var IMG_H: Int = 640
 
         fun decompressImageRLE(array : ByteArray) : Bitmap {
-            val width = GlobalStatus.IMG_W
-            val height = GlobalStatus.IMG_H
+            val width = IMG_W
+            val height = IMG_H
             val image: Bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
             val colorArray = ArrayList<ArrayList<Int>>()
 

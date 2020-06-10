@@ -1,6 +1,8 @@
 package com.pictsmanager.request.model
 
-class ImageModel(var id: Long, var name: String, var image: ByteArray, var owner_id: Long, var access_read: Boolean) {
+import java.util.*
+
+class ImageModel(var id: Long, var owner_id: Long, var url: String, var name: String, var date_creation: String, var access_read: Boolean, var image: ByteArray) {
 
     override fun toString(): String {
         return "Id:$id\nName:$name\n" +

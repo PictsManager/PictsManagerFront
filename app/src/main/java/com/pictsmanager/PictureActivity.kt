@@ -12,6 +12,7 @@ import android.widget.ImageView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import android.widget.Toast
+import com.pictsmanager.request.model.ImageModel
 import com.pictsmanager.request.service.GlobalService
 import com.pictsmanager.util.GlobalStatus
 import kotlinx.android.synthetic.main.activity_picture.*
@@ -122,7 +123,7 @@ class PictureActivity : AppCompatActivity() {
         val compressedImage: Bitmap = Bitmap.createBitmap(w, h, confBitmap)
         for (x in 0 until w) {
             for (y in 0 until h) {
-                val color = bitmap.getColor(x * factor, y * factor).toArgb()
+                val color = bitmap.getPixel(x * factor, y * factor)
                 compressedImage.setPixel(x, y, color)
             }
         }
@@ -130,7 +131,8 @@ class PictureActivity : AppCompatActivity() {
     }
 
     private fun tryAddImage(name: String, access_read: Boolean, byteArray: ByteArray) {
-        val userConnexionRequest = GlobalService.imageService.createImage(GlobalStatus.JWT, name, access_read, byteArray)
+        var imageModel = ImageModel(name = name, access_read = access_read, image = byteArray, owner_id = -1, id = -1, date_creation = "", url = "")
+        val userConnexionRequest = GlobalService.imageService.createImage(GlobalStatus.JWT, imageModel)
         userConnexionRequest.enqueue(object : Callback<Any> {
             override fun onResponse(call: Call<Any>, response: Response<Any>) {
                 if (response.code() == 400 || response.code() == 418) {
@@ -164,7 +166,7 @@ class PictureActivity : AppCompatActivity() {
         val newBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true)
         for (x in 0 until newBitmap.width) {
             for (y in 0 until newBitmap.height) {
-                val c = loseColorQuality(newBitmap.getColor(x, y))
+                val c = loseColorQuality(Color.valueOf(newBitmap.getPixel(x, y)))
                 newBitmap.setPixel(x, y, c)
             }
         }

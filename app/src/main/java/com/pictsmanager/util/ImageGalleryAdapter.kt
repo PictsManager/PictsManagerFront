@@ -44,13 +44,7 @@ class ImageGalleryAdapter(var ctx: Context, var images: ArrayList<ImageModel>): 
         }
 
         val image: ImageModel = getItem(position) as ImageModel
-        val imArr = image.image
-        val imArrLen = imArr.size
-        val ba = ByteArray(imArrLen)
-        for (b in imArr.indices) {
-            ba[b] = imArr[b].toByte()
-        }
-        var bmp: Bitmap = BitmapFactory.decodeByteArray(ba, 0, imArrLen)
+        val bmp: Bitmap = GlobalStatus.decompressImageRLE(image.image)
         //viewHolder.imageViewImage.setImageBitmap(Bitmap.createScaledBitmap(bmp, 200, 200, false))
         viewHolder.imageViewImage.setImageBitmap(bmp)
 
