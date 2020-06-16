@@ -16,10 +16,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        tools:targetApi="n">
+        tools:targetApi="n"
+        tools:ignore="LockedOrientationActivity">
         <activity android:name=".HomeActivity" />
         <activity android:name=".CreateAccountActivity" />
-        <activity android:name=".GalleryActivity" />
+        <activity android:name=".GalleryActivity"  android:screenOrientation="landscape" />
         <activity android:name=".SearchActivity" />
         <activity android:name=".ProfilActivity" />
         <activity android:name=".PictureActivity" />

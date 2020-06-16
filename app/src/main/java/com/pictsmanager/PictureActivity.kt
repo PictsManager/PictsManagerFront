@@ -15,6 +15,8 @@ import android.widget.Toast
 import com.pictsmanager.request.model.ImageModel
 import com.pictsmanager.request.service.GlobalService
 import com.pictsmanager.util.GlobalStatus
+import com.pictsmanager.util.Huffman
+import com.pictsmanager.util.RLE
 import kotlinx.android.synthetic.main.activity_picture.*
 import org.json.JSONObject
 import retrofit2.Call
@@ -32,6 +34,8 @@ class PictureActivity : AppCompatActivity() {
     private var image: Bitmap? = null
     private var imageByteArray: ByteArray = byteArrayOf()
     private val confBitmap = Bitmap.Config.ARGB_8888
+    private var width = 0
+    private var height = 0
 
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,60 +44,19 @@ class PictureActivity : AppCompatActivity() {
         imagePictureView = findViewById<View>(R.id.imagePictureView) as ImageView
 
         val filePath = intent.getStringExtra("PictureTaken")
-        var file = File(filePath)
-
+        val file = File(filePath)
         var bitmap : Bitmap = BitmapFactory.decodeFile(file.absolutePath)
         bitmap = sizeReduction(bitmap)
         image = loseImageQuality(bitmap)
         imagePictureView!!.setImageBitmap(image)
+
         initButtons()
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)
-    fun compressImageRLE(resizedBitmap: Bitmap) : ByteArray {
-        var array = byteArrayOf()
-        val redArray = ArrayList<Int>()
-        val greenArray = ArrayList<Int>()
-        val blueArray = ArrayList<Int>()
-
-        for (y in 0 until resizedBitmap.height) {
-            for (x in 0 until resizedBitmap.width) {
-                redArray.add(Color.red(resizedBitmap.getPixel(x, y)))
-                greenArray.add(Color.green(resizedBitmap.getPixel(x, y)))
-                blueArray.add(Color.blue(resizedBitmap.getPixel(x, y)))
-            }
-        }
-        array = appendColorInByteArray(redArray, array)
-        array = appendColorInByteArray(greenArray, array)
-        array = appendColorInByteArray(blueArray, array)
-        return array
+    fun compressImageHuffman(bitmap: Bitmap): ByteArray? {
+        return null
     }
-
-    private fun appendColorInByteArray(colorArray : ArrayList<Int>, array : ByteArray) : ByteArray{
-        var i: Int = 1
-        var byteArray = array
-        var end = false
-        var a = 0
-        for (x in 0 until colorArray.size) {
-            if (((x + 1) < colorArray.size) && (colorArray[x] == colorArray[x + 1]) && i < 125) {
-                i += 1
-                a = x
-                end = true
-            } else {
-                end = false
-                byteArray += i.toByte()
-                byteArray += colorArray[x].toByte()
-                i = 1
-            }
-        }
-        if (end) {
-            byteArray += i.toByte()
-            byteArray += colorArray[a].toByte()
-        }
-
-        return byteArray
-    }
-
 
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun initButtons() {
@@ -108,21 +71,21 @@ class PictureActivity : AppCompatActivity() {
         }
 
         buttonValidatePicture.setOnClickListener {
-            imageByteArray = image?.let { it1 -> compressImageRLE(it1) }!!
-            tryAddImage(nameImg, accessReadImg, imageByteArray)
+            imageByteArray = image?.let { it1 -> Huffman.applyCompress(it1) }!!
+            val keys = arrayOf<Array<String>>(Huffman.redKey, Huffman.greenKey, Huffman.blueKey)
+            //imageByteArray = image?.let { it1 -> RLE.compressImage(it1) }!!
+            tryAddImage(nameImg, accessReadImg, imageByteArray, width, height, keys)
         }
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun sizeReduction(bitmap: Bitmap): Bitmap {
-        GlobalStatus.IMG_H = bitmap.height / factor
-        GlobalStatus.IMG_W = bitmap.width / factor
-        val w = GlobalStatus.IMG_W
-        val h = GlobalStatus.IMG_H
+        width = bitmap.width / factor
+        height = bitmap.height / factor
 
-        val compressedImage: Bitmap = Bitmap.createBitmap(w, h, confBitmap)
-        for (x in 0 until w) {
-            for (y in 0 until h) {
+        val compressedImage: Bitmap = Bitmap.createBitmap(width, height, confBitmap)
+        for (x in 0 until width) {
+            for (y in 0 until height) {
                 val color = bitmap.getPixel(x * factor, y * factor)
                 compressedImage.setPixel(x, y, color)
             }
@@ -130,8 +93,8 @@ class PictureActivity : AppCompatActivity() {
         return compressedImage
     }
 
-    private fun tryAddImage(name: String, access_read: Boolean, byteArray: ByteArray) {
-        var imageModel = ImageModel(name = name, access_read = access_read, image = byteArray, owner_id = -1, id = -1, date_creation = "", url = "")
+    private fun tryAddImage(name: String, access_read: Boolean, byteArray: ByteArray, width: Int, height: Int, key: Array<Array<String>>) {
+        var imageModel = ImageModel(name = name, access_read = access_read, image = byteArray, owner_id = -1, id = -1, date_creation = "", url = "", width = width, height = height, red = key[0], green = key[1], blue = key[2])
         val userConnexionRequest = GlobalService.imageService.createImage(GlobalStatus.JWT, imageModel)
         userConnexionRequest.enqueue(object : Callback<Any> {
             override fun onResponse(call: Call<Any>, response: Response<Any>) {

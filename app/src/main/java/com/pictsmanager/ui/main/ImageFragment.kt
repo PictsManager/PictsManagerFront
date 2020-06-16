@@ -68,7 +68,7 @@ class ImageFragment(context: Context): Fragment(){
             }
         }
 
-        bottomNavigation.setOnNavigationItemReselectedListener { item ->
+        bottomNavigation.setOnNavigationItemSelectedListener { item ->
             when(item.itemId) {
                 R.id.action_delete -> {
                     showDeleteDialog(ctx)
@@ -240,14 +240,17 @@ class ImageFragment(context: Context): Fragment(){
             override fun onResponse(call: Call<ArrayList<AlbumModel>>, response: Response<ArrayList<AlbumModel>>) {
                 if (response.code() == 400 || response.code() == 418) {
                     val jsonObject = JSONObject(response.errorBody()!!.string())
+
                     System.out.println(jsonObject)
                     Toast.makeText(ctx, jsonObject.toString(), Toast.LENGTH_SHORT).show()
+
                 } else if (response.code() == 200) {
                     val body = response.body()
+
                     body?.let {
-                        Toast.makeText(ctx, it.toString(), Toast.LENGTH_LONG).show()
                         val readAlbum = it
                         var album_labels: ArrayList<String> = ArrayList()
+
                         for (i in readAlbum) {
                             album_labels.add(i.name)
                         }
@@ -269,17 +272,22 @@ class ImageFragment(context: Context): Fragment(){
                         clear_button.setOnClickListener {
                             dialog.dismiss()
                         }
+
                         add_button.setOnClickListener {
                             val albumName: String = album_spinner.selectedItem as String
-                            var selectedAlbum: AlbumModel = getAlbumModelFromName(readAlbum, albumName)!!
-                            var newIds = getImageModelIdsFromImageSelected()
+                            val selectedAlbum: AlbumModel = getAlbumModelFromName(readAlbum, albumName)!!
+                            val newIds = getImageModelIdsFromImageSelected()
+
+                            selectedAlbum.images = arrayListOf<Long>()
                             for (id in newIds) {
                                 selectedAlbum.images.add(id)
                             }
+
                             var albumUpdateRequest = GlobalService.albumService.updateAlbum(GlobalStatus.JWT, selectedAlbum.id, selectedAlbum.name, selectedAlbum.access_read, selectedAlbum.images)
                             albumUpdateRequest.enqueue(object : Callback<Any> {
                                 override fun onResponse(call: Call<Any>, response: Response<Any>) {
                                     val body = response.body()
+
                                     body?.let {
                                         Toast.makeText(ctx, it.toString(), Toast.LENGTH_LONG).show()
                                     }
@@ -291,6 +299,7 @@ class ImageFragment(context: Context): Fragment(){
                             })
                             dialog.dismiss()
                         }
+
                         album_spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
                             override fun onNothingSelected(parent: AdapterView<*>?) {
                             }
@@ -354,6 +363,7 @@ class ImageFragment(context: Context): Fragment(){
             override fun onResponse(call: Call<ArrayList<ImageModel>>, response: Response<ArrayList<ImageModel>>) {
                 if (response.code() == 400 || response.code() == 418) {
                     val jsonObject = JSONObject(response.errorBody()!!.string())
+
                     System.out.println(jsonObject)
                     Toast.makeText(ctx, jsonObject.toString(), Toast.LENGTH_SHORT).show()
                 } else if (response.code() == 200) {

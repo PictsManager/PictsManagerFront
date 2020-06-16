@@ -127,7 +127,7 @@ class CreateAccountActivity : AppCompatActivity() {
                     System.out.println(jsonObject)
                     Toast.makeText(this@CreateAccountActivity, jsonObject.toString(), Toast.LENGTH_SHORT).show()
                 } else if (response.code() == 200) {
-                    Toast.makeText(this@CreateAccountActivity, "Creation Account Success", Toast.LENGTH_SHORT)
+                    Toast.makeText(this@CreateAccountActivity, "Create Account Success", Toast.LENGTH_SHORT)
                         .show()
                     val intent = Intent(this@CreateAccountActivity, ConnexionActivity::class.java)
                     startActivity(intent)
@@ -141,7 +141,7 @@ class CreateAccountActivity : AppCompatActivity() {
                 t.printStackTrace()
                 Toast.makeText(
                     this@CreateAccountActivity,
-                    "Email already taken",
+                    "Error server",
                     Toast.LENGTH_SHORT
                 ).show()
                 println(t.message)
