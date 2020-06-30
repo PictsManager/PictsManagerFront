@@ -6,9 +6,8 @@ import retrofit2.http.*
 
 interface ImageApi {
 
-    @FormUrlEncoded
     @POST("/image/create")
-    fun createImage(@Header("authorization") authorization: String, @Field("name") name: String, @Field("access_read") access_read: Boolean, @Field("image") image: ArrayList<Int>): Call<Any>
+    fun createImage(@Header("authorization") authorization: String, @Body imageModel: ImageModel): Call<Any>
 
     @DELETE("/image/delete")
     fun deleteImage(@Header("authorization") authorization: String, @Query("id") id: Long): Call<Any>
@@ -19,7 +18,7 @@ interface ImageApi {
 
     @FormUrlEncoded
     @PUT("/image/update")
-    fun updateImage(@Header("authorization") authorization: String, @Field("id") id: Long, @Field("name") name: String, @Field("acces_read") access_read: Boolean): Call<Any>
+    fun updateImage(@Header("authorization") authorization: String, @Field("id") id: Long, @Field("name") name: String, @Field("access_read") access_read: Boolean): Call<Any>
 
     @GET("/image/read")
     fun readImages(@Header("authorization") authorization: String, @Query("id") id: Long?): Call<ArrayList<ImageModel>>

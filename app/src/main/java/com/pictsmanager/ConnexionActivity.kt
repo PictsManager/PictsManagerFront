@@ -7,10 +7,7 @@ import android.text.TextWatcher
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.google.gson.Gson
-import com.pictsmanager.request.model.SuccessModel
-import com.pictsmanager.request.model.UserModel
-import com.pictsmanager.request.service.UserService
+import com.pictsmanager.request.service.GlobalService
 import com.pictsmanager.util.EnumTypeInput
 import com.pictsmanager.util.GlobalStatus
 import kotlinx.android.synthetic.main.activity_connexion.*
@@ -36,7 +33,6 @@ class ConnexionActivity : AppCompatActivity() {
 
         initButtons()
 
-        // Comment the following line to pass-by the connexion verification
         enableConnexionButton(false)
     }
 
@@ -57,13 +53,6 @@ class ConnexionActivity : AppCompatActivity() {
             val passInputVal = passInput.text.toString()
 
             tryConnexion(emailInputVal, passInputVal)
-
-
-/*
-            val intent = Intent(this@ConnexionActivity, HomeActivity::class.java)
-//                intent.putExtra("key", "Kotlin")
-            startActivity(intent)
-*/
         }
 
         createAccountButtonLink.setOnClickListener {
@@ -116,12 +105,9 @@ class ConnexionActivity : AppCompatActivity() {
     }
 
     private fun tryConnexion(email: String, password: String) {
-        val userModel = UserModel()
-        userModel.email = email
-        userModel.password = password
-        val userConnexionRequest = UserService.service.tryConnexion(email, password)
-        userConnexionRequest.enqueue(object : Callback<SuccessModel> {
-            override fun onResponse(call: Call<SuccessModel>, response: Response<SuccessModel>) {
+        val userConnexionRequest = GlobalService.userService.connexion(email, password)
+        userConnexionRequest.enqueue(object : Callback<Any> {
+            override fun onResponse(call: Call<Any>, response: Response<Any>) {
                 if (response.code() == 400 || response.code() == 418) {
                     val jsonObject = JSONObject(response.errorBody()!!.string())
                     System.out.println(jsonObject)
@@ -138,11 +124,11 @@ class ConnexionActivity : AppCompatActivity() {
                 }
             }
 
-            override fun onFailure(call: Call<SuccessModel>, t: Throwable) {
+            override fun onFailure(call: Call<Any>, t: Throwable) {
                 t.printStackTrace()
                 Toast.makeText(
                     this@ConnexionActivity,
-                    "Wrong Email or Password",
+                    "Error server",
                     Toast.LENGTH_SHORT
                 ).show()
             }

@@ -7,12 +7,12 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.widget.EditText
 import android.widget.Toast
-import com.pictsmanager.request.model.UserModel
-import com.pictsmanager.request.service.UserService
+import com.pictsmanager.request.service.GlobalService
 import com.pictsmanager.util.EnumTypeInput
 import kotlinx.android.synthetic.main.activity_connexion.emailInput
 import kotlinx.android.synthetic.main.activity_connexion.passInput
 import kotlinx.android.synthetic.main.activity_create_account.*
+import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -53,15 +53,6 @@ class CreateAccountActivity : AppCompatActivity() {
             val passInputVal = passInput.text.toString()
 
             tryCreateAccount(emailInputVal, passInputVal)
-
-/*            Toast.makeText(
-                this@CreateAccountActivity,
-                "Creation Account Success",
-                Toast.LENGTH_LONG
-            ).show()
-
-            val intent = Intent(this@CreateAccountActivity, ConnexionActivity::class.java)
-            startActivity(intent)*/
         }
     }
 
@@ -128,29 +119,29 @@ class CreateAccountActivity : AppCompatActivity() {
     }
 
     private fun tryCreateAccount(email: String, password: String) {
-        val userModel = UserModel()
-        userModel.email = email
-        userModel.password = password
-        val userConnexionRequest = UserService.service.tryCreateAccount(userModel)
-        userConnexionRequest.enqueue(object : Callback<UserModel> {
-            override fun onResponse(call: Call<UserModel>, response: Response<UserModel>) {
-                val body = response.body()
-                body?.let {
+        val userConnexionRequest = GlobalService.userService.createAccount(email, password)
+        userConnexionRequest.enqueue(object : Callback<Any> {
+            override fun onResponse(call: Call<Any>, response: Response<Any>) {
+                if (response.code() == 400 || response.code() == 418) {
+                    val jsonObject = JSONObject(response.errorBody()!!.string())
+                    System.out.println(jsonObject)
+                    Toast.makeText(this@CreateAccountActivity, jsonObject.toString(), Toast.LENGTH_SHORT).show()
+                } else if (response.code() == 200) {
+                    Toast.makeText(this@CreateAccountActivity, "Create Account Success", Toast.LENGTH_SHORT)
+                        .show()
+                    val intent = Intent(this@CreateAccountActivity, ConnexionActivity::class.java)
+                    startActivity(intent)
+                } else {
+                    System.out.println("Untreated error")
+                    Toast.makeText(this@CreateAccountActivity, "Untreated error", Toast.LENGTH_SHORT).show()
                 }
-                Toast.makeText(
-                    this@CreateAccountActivity,
-                    "Creation Account Success",
-                    Toast.LENGTH_SHORT
-                ).show()
-                val intent = Intent(this@CreateAccountActivity, ConnexionActivity::class.java)
-                startActivity(intent)
             }
 
-            override fun onFailure(call: Call<UserModel>, t: Throwable) {
+            override fun onFailure(call: Call<Any>, t: Throwable) {
                 t.printStackTrace()
                 Toast.makeText(
                     this@CreateAccountActivity,
-                    "Email already taken",
+                    "Error server",
                     Toast.LENGTH_SHORT
                 ).show()
                 println(t.message)

@@ -2,15 +2,11 @@ package com.pictsmanager.util
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
 import com.pictsmanager.R
 import com.pictsmanager.request.model.ImageModel
 
@@ -44,14 +40,9 @@ class ImageGalleryAdapter(var ctx: Context, var images: ArrayList<ImageModel>): 
         }
 
         val image: ImageModel = getItem(position) as ImageModel
-        val imArr = image.image
-        val imArrLen = imArr.size
-        val ba = ByteArray(imArrLen)
-        for (b in imArr.indices) {
-            ba[b] = imArr[b].toByte()
-        }
-        var bmp: Bitmap = BitmapFactory.decodeByteArray(ba, 0, imArrLen)
-        //viewHolder.imageViewImage.setImageBitmap(Bitmap.createScaledBitmap(bmp, 200, 200, false))
+        val keys = arrayOf<Array<String>>(image.red, image.green, image.blue)
+        //val bmp: Bitmap = RLE.decompressImageRLE(image.image, image.width, image.height)
+        val bmp: Bitmap = Huffman.applyDecompress(image.image, image.width, image.height, keys)
         viewHolder.imageViewImage.setImageBitmap(bmp)
 
         return view as View
