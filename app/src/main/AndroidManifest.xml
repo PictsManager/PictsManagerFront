@@ -20,7 +20,7 @@
         tools:ignore="LockedOrientationActivity">
         <activity android:name=".HomeActivity" />
         <activity android:name=".CreateAccountActivity" />
-        <activity android:name=".GalleryActivity"  android:screenOrientation="landscape" />
+        <activity android:name=".GalleryActivity" />
         <activity android:name=".SearchActivity" />
         <activity android:name=".ProfilActivity" />
         <activity android:name=".PictureActivity" />
