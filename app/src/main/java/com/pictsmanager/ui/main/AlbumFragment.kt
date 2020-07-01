@@ -95,6 +95,9 @@ class AlbumFragment(context: Context): Fragment() {
                     showNewDialog(ctx)
                     true
                 }
+                R.id.action_zoom -> {
+                    true
+                }
                 else -> false
             }
         }

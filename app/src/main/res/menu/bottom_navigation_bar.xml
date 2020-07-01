@@ -7,6 +7,7 @@
         android:icon="@drawable/baseline_delete_black_18dp"
         android:title="bottom_navigation_menu_delete"
         app:showAsAction="ifRoom" />
+
     <item
         android:id="@+id/action_share"
         android:enabled="true"
@@ -18,5 +19,12 @@
         android:enabled="true"
         android:icon="@drawable/baseline_add_circle_black_18dp"
         android:title="bottom_navigation_menu_add"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_zoom"
+        android:enabled="true"
+        android:icon="@drawable/loupe"
+        android:title="bottom_navigation_menu_zoom"
         app:showAsAction="ifRoom" />
 </menu>
