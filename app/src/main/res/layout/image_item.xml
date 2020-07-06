@@ -8,5 +8,5 @@
         android:layout_height="120dp"
         android:id="@+id/item_image_image_view"
         android:src="@drawable/salameche"/>
-    
+
 </LinearLayout>
