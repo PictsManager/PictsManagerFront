@@ -22,7 +22,7 @@ interface ImageApi {
 
     @FormUrlEncoded
     @PUT("/image/update")
-    fun updateImage(@Header("authorization") authorization: String, @Field("id") id: Long, @Field("name") name: String, @Field("access_read") access_read: Boolean, @Field("tags") tags: String): Call<Any>
+    fun updateImage(@Header("authorization") authorization: String, @Field("id") id: Long, @Field("name") name: String, @Field("tags") tags: String): Call<Any>
 
     @GET("/image/read")
     fun readImages(@Header("authorization") authorization: String, @Query("id") id: Long?): Call<ArrayList<ImageModel>>
