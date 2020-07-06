@@ -29,7 +29,7 @@ class PictureActivity : AppCompatActivity() {
 
     private var nameImg: String = System.currentTimeMillis().toString()
     private var accessReadImg: Boolean = false
-    private val factor = 2 // sizeReduction = factor * factor // 8
+    private val factor = 3 // sizeReduction = factor * factor // 8
     private val qualityLoss = 20 // out of 255
     private var image: Bitmap? = null
     private var imageByteArray: ByteArray = byteArrayOf()
@@ -45,6 +45,8 @@ class PictureActivity : AppCompatActivity() {
 
         val filePath = intent.getStringExtra("PictureTaken")
         val file = File(filePath)
+        println("file length")
+        println(file.length())
         var bitmap : Bitmap = BitmapFactory.decodeFile(file.absolutePath)
         bitmap = sizeReduction(bitmap)
         image = loseImageQuality(bitmap)
@@ -71,9 +73,14 @@ class PictureActivity : AppCompatActivity() {
         }
 
         buttonValidatePicture.setOnClickListener {
-            imageByteArray = image?.let { it1 -> Huffman.applyCompress(it1) }!!
-            val keys = arrayOf<Array<String>>(Huffman.redKey, Huffman.greenKey, Huffman.blueKey)
-            //imageByteArray = image?.let { it1 -> RLE.compressImage(it1) }!!
+            var keys: Array<Array<String>>
+            if (GlobalStatus.COMPRESSION == "RLE") {
+                imageByteArray = image?.let { it1 -> RLE.applyCompress(it1) }!!
+                keys = arrayOf<Array<String>>(arrayOf<String>(), arrayOf<String>(), arrayOf<String>())
+            } else {
+                imageByteArray = image?.let { it1 -> Huffman.applyCompress(it1) }!!
+                keys = arrayOf<Array<String>>(Huffman.redKey, Huffman.greenKey, Huffman.blueKey)
+            }
             tryAddImage(nameImg, accessReadImg, imageByteArray, width, height, keys)
         }
     }
@@ -94,7 +101,7 @@ class PictureActivity : AppCompatActivity() {
     }
 
     private fun tryAddImage(name: String, access_read: Boolean, byteArray: ByteArray, width: Int, height: Int, key: Array<Array<String>>) {
-        var imageModel = ImageModel(name = name, access_read = access_read, image = byteArray, owner_id = -1, id = -1, date_creation = "", url = "", width = width, height = height, red = key[0], green = key[1], blue = key[2])
+        var imageModel = ImageModel(name = name, access_read = access_read, image = byteArray, owner_id = -1, id = -1, date_creation = "", url = "", width = width, height = height, red = key[0], green = key[1], blue = key[2], imageBM = null)
         val userConnexionRequest = GlobalService.imageService.createImage(GlobalStatus.JWT, imageModel)
         userConnexionRequest.enqueue(object : Callback<Any> {
             override fun onResponse(call: Call<Any>, response: Response<Any>) {

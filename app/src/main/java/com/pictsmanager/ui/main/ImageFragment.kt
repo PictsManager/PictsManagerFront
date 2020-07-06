@@ -25,6 +25,8 @@ import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.util.*
+import kotlin.collections.ArrayList
 
 class ImageFragment(context: Context): Fragment(){
 
@@ -173,11 +175,8 @@ class ImageFragment(context: Context): Fragment(){
                 val position = p.key
                 val im: ImageModel = getImageModelFromPosition(position)!!
 
-                val keys = arrayOf<Array<String>>(im.red, im.green, im.blue)
-                //val bmp: Bitmap = RLE.decompressImageRLE(im.image, im.width, im.height)
-                val bmp: Bitmap = Huffman.applyDecompress(im.image, im.width, im.height, keys)
+                imageZoom.setImageBitmap(im.imageBM)
 
-                imageZoom.setImageBitmap(bmp)
             }
         }
 
@@ -411,6 +410,7 @@ class ImageFragment(context: Context): Fragment(){
                     val body = response.body()
                     body?.let {
                         images = it
+                        completeImageModelWithDecompressBitmap(images)
                         resetGridViewAndImageSelected()
                         Toast.makeText(ctx, "Successful update", Toast.LENGTH_SHORT).show()
                     }
@@ -424,5 +424,20 @@ class ImageFragment(context: Context): Fragment(){
                 Toast.makeText(ctx, "ERROR server: read", Toast.LENGTH_LONG).show()
             }
         })
+    }
+
+    private fun completeImageModelWithDecompressBitmap(toComplete: ArrayList<ImageModel>) {
+        if (GlobalStatus.COMPRESSION == "RLE") {
+            for (im in toComplete) {
+                val bmp: Bitmap = RLE.applyDecompress(im.image, im.width, im.height)
+                im.imageBM = bmp
+            }
+        } else {
+            for (im in toComplete) {
+                val keys = arrayOf<Array<String>>(im.red, im.green, im.blue)
+                val bmp: Bitmap = Huffman.applyDecompress(im.image, im.width, im.height, keys)
+                im.imageBM = bmp
+            }
+        }
     }
 }
