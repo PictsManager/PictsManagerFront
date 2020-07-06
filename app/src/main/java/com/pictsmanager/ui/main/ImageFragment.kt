@@ -2,6 +2,7 @@ package com.pictsmanager.ui.main
 
 import android.app.Dialog
 import android.content.Context
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.util.Log
@@ -17,7 +18,9 @@ import com.pictsmanager.request.model.AlbumModel
 import com.pictsmanager.request.model.ImageModel
 import com.pictsmanager.request.service.GlobalService
 import com.pictsmanager.util.GlobalStatus
+import com.pictsmanager.util.Huffman
 import com.pictsmanager.util.ImageGalleryAdapter
+import com.pictsmanager.util.RLE
 import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
@@ -82,6 +85,10 @@ class ImageFragment(context: Context): Fragment(){
                     showAddDialog(ctx)
                     true
                 }
+                R.id.action_zoom -> {
+                    showZoomView(ctx)
+                    true
+                }
                 else -> false
             }
         }
@@ -143,6 +150,40 @@ class ImageFragment(context: Context): Fragment(){
         val displayMetrics: DisplayMetrics = context.getResources().getDisplayMetrics()
         val dialogWidth = (displayMetrics.widthPixels * 0.80).toInt()
         val dialogHeight = (displayMetrics.heightPixels * 0.30).toInt()
+        dialog.getWindow()?.setLayout(dialogWidth, dialogHeight)
+        dialog.show()
+    }
+
+    private fun showZoomView(context: Context) {
+        val dialog = Dialog(context)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setContentView(R.layout.image_zoom)
+        dialog.setCanceledOnTouchOutside(false)
+        dialog.setCancelable(true)
+
+        var imageZoom = dialog.findViewById(R.id.imageView) as ImageView
+        val clear_button = dialog.findViewById(R.id.zoom_clear_button) as ImageButton
+
+        clear_button.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        for (p in imagesSelected) {
+            if (p.value) {
+                val position = p.key
+                val im: ImageModel = getImageModelFromPosition(position)!!
+
+                val keys = arrayOf<Array<String>>(im.red, im.green, im.blue)
+                //val bmp: Bitmap = RLE.decompressImageRLE(im.image, im.width, im.height)
+                val bmp: Bitmap = Huffman.applyDecompress(im.image, im.width, im.height, keys)
+
+                imageZoom.setImageBitmap(bmp)
+            }
+        }
+
+        val displayMetrics: DisplayMetrics = context.getResources().getDisplayMetrics()
+        val dialogWidth = (displayMetrics.widthPixels * 1).toInt()
+        val dialogHeight = (displayMetrics.heightPixels * 0.9).toInt()
         dialog.getWindow()?.setLayout(dialogWidth, dialogHeight)
         dialog.show()
     }
