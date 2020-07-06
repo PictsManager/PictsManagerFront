@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".SearchActivity">
 
-    <Button
+   <Button
         android:id="@+id/buttonBackCamera2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -39,5 +39,32 @@
         app:layout_constraintEnd_toEndOf="@+id/spDateOrder"
         app:layout_constraintTop_toTopOf="@+id/spDateOrder"
         app:srcCompat="@android:drawable/arrow_down_float" />
+
+    <EditText
+        android:id="@+id/searchInput"
+        android:layout_width="213dp"
+        android:layout_height="46dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:text="Search"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.388"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/spDateOrder"
+        app:layout_constraintVertical_bias="0.061" />
+
+    <ImageButton
+        android:id="@+id/searchSubmit"
+        android:layout_width="52dp"
+        android:layout_height="47dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/searchInput"
+        app:layout_constraintTop_toBottomOf="@+id/spDateOrder"
+        app:layout_constraintVertical_bias="0.061"
+        app:srcCompat="@android:drawable/ic_menu_search" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

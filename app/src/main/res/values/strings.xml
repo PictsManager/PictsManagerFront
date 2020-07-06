@@ -21,4 +21,6 @@
         <item>From the oldest</item>
         <item>From the most recent</item>
     </string-array>
+    <string name="search_hint">Tap your search</string>
+    <string name="app_name">Search Interface</string>
 </resources>
