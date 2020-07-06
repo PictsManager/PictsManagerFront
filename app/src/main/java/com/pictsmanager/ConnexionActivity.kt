@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.widget.EditText
+import android.widget.RadioButton
+import android.widget.RadioGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.pictsmanager.request.service.GlobalService
@@ -22,9 +24,14 @@ class ConnexionActivity : AppCompatActivity() {
     private var isEmailValid = false
     private var isPasswordValid = false
 
+    private lateinit var rg: RadioGroup
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_connexion)
+
+//        rg = findViewById(R.id.compression)
+//        rg.check(findViewById<RadioButton>(R.id.RLEChoosen).id)
 
         var emailInput = findViewById(R.id.emailInput) as EditText
         emailInput.setText("pierre@mail.com")
@@ -82,6 +89,8 @@ class ConnexionActivity : AppCompatActivity() {
                         if (!isPasswordValid)
                             editText.error = errorText
                     }
+                    else -> {
+                    }
                 }
                 enableConnexionButton(isEmailValid && isPasswordValid)
             }
@@ -113,6 +122,7 @@ class ConnexionActivity : AppCompatActivity() {
                     System.out.println(jsonObject)
                     Toast.makeText(this@ConnexionActivity, jsonObject.toString(), Toast.LENGTH_SHORT).show()
                 } else if (response.code() == 200) {
+
                     GlobalStatus.JWT = response.headers().get("JWT").toString()
                     Toast.makeText(this@ConnexionActivity, "Connexion Success", Toast.LENGTH_SHORT)
                         .show()

@@ -40,10 +40,11 @@ class ImageGalleryAdapter(var ctx: Context, var images: ArrayList<ImageModel>): 
         }
 
         val image: ImageModel = getItem(position) as ImageModel
-        val keys = arrayOf<Array<String>>(image.red, image.green, image.blue)
+        //val keys = arrayOf<Array<String>>(image.red, image.green, image.blue)
         //val bmp: Bitmap = RLE.decompressImageRLE(image.image, image.width, image.height)
-        val bmp: Bitmap = Huffman.applyDecompress(image.image, image.width, image.height, keys)
-        viewHolder.imageViewImage.setImageBitmap(bmp)
+        //val bmp: Bitmap = Huffman.applyDecompress(image.image, image.width, image.height, keys)
+        //viewHolder.imageViewImage.setImageBitmap(bmp)
+        viewHolder.imageViewImage.setImageBitmap(image.imageBM)
 
         return view as View
     }

@@ -2,6 +2,7 @@ package com.pictsmanager.util
 
 import android.graphics.Bitmap
 import android.graphics.Color
+import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.math.pow
@@ -174,12 +175,18 @@ class Huffman {
         }
 
         fun applyCompress(bitmap: Bitmap): ByteArray {
+            val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
+            val currentDate = sdf.format(Date())
+            println("HUFFMAN START COMPRESS  $currentDate")
+
             val redArray = ArrayList<Int>()
             val greenArray = ArrayList<Int>()
             val blueArray = ArrayList<Int>()
 
             width = bitmap.width
             height = bitmap.height
+            val bms = width * height
+            print("bitmap in size  $bms")
 
             for (y in 0 until bitmap.height) {
                 for (x in 0 until bitmap.width) {
@@ -188,11 +195,6 @@ class Huffman {
                     blueArray.add(Color.blue(bitmap.getPixel(x, y)))
                 }
             }
-
-            /*println("ten first red array encode")
-            for (i in 0 until 10) {
-                println(redArray[i])
-            }*/
 
             val redFreq = buildFrequencies(redArray)
             val greenFreq = buildFrequencies(greenArray)
@@ -217,19 +219,28 @@ class Huffman {
             redTarget = redTarget.plus(greenTarget)
             redTarget = redTarget.plus(blueTarget)
 
+            val sdf2 = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
+            val currentDate2 = sdf2.format(Date())
+            println("HUFFMAN END COMPRESS  $currentDate2")
+            val bas = redTarget.size
+            println("bytearray out size  $bas")
+
             return redTarget
         }
 
         fun applyDecompress(byteArray: ByteArray, width: Int, height: Int, keys: Array<Array<String>>): Bitmap {
+            val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
+            val currentDate = sdf.format(Date())
+            println("HUFFMAN START DECOMPRESS  $currentDate")
+            val bas = byteArray.size
+            println("bytearray in size  $bas")
+
+
             val image: Bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
 
             val rk = keys[0]
             val gk = keys[1]
             val bk = keys[2]
-
-            //val rk = redKey
-            //val gk = greenKey
-            //val bk = blueKey
 
             val redSize = rk[256]!!.removeRange(0, 1).toInt()
             val greenSize = gk[256]!!.removeRange(0, 1).toInt()
@@ -247,11 +258,6 @@ class Huffman {
             val greenArray = decode(ges, gk)
             val blueArray = decode(bes, bk)
 
-            /*println("ten first red array decode")
-            for (i in 0 until 10) {
-                println(redArray[i])
-            }*/
-
             for (j in 0 until height) {
                 for (i in 0 until width) {
                     val x = j * width + i
@@ -261,6 +267,12 @@ class Huffman {
                     image.setPixel(i, j, Color.rgb(r, g, b))
                 }
             }
+
+            val sdf2 = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
+            val currentDate2 = sdf2.format(Date())
+            println("HUFFMAN END DECOMPRESS  $currentDate2")
+            val bms = image.width * image.height
+            println("bitmap out size  $bms")
 
             return image
         }

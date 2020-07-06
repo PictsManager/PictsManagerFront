@@ -22,6 +22,12 @@
         app:showAsAction="ifRoom" />
 
     <item
+        android:id="@+id/action_tags"
+        android:enabled="true"
+        android:icon="@drawable/edit_icon"
+        android:title="bottom_navigation_menu_tags"
+        app:showAsAction="ifRoom" />
+    <item
         android:id="@+id/action_zoom"
         android:enabled="true"
         android:icon="@drawable/loupe"

@@ -4,6 +4,8 @@ import android.app.Dialog
 import android.content.Context
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.LayoutInflater
@@ -20,13 +22,15 @@ import com.pictsmanager.request.service.GlobalService
 import com.pictsmanager.util.GlobalStatus
 import com.pictsmanager.util.Huffman
 import com.pictsmanager.util.ImageGalleryAdapter
-import com.pictsmanager.util.RLE
 import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.util.*
+import kotlin.collections.ArrayList
 
-class ImageFragment(context: Context): Fragment(){
+
+class ImageFragment(context: Context) : Fragment() {
 
     var ctx: Context = context
     var imagesSelected = mutableMapOf<Int, Boolean>()
@@ -37,8 +41,10 @@ class ImageFragment(context: Context): Fragment(){
     lateinit var gridView: GridView
     lateinit var bottomNavigation: BottomNavigationView
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
 
         var view: View = inflater.inflate(R.layout.image_fragment, container, false)
 
@@ -60,7 +66,7 @@ class ImageFragment(context: Context): Fragment(){
         gridView.setOnItemClickListener { parent, view, position, id ->
             //val image = images.get(position)
             val ISAsBool = imagesSelected[position] as Boolean
-            imagesSelected[position] = ! ISAsBool
+            imagesSelected[position] = !ISAsBool
 
             gridView.setItemChecked(position, true)
 
@@ -72,13 +78,17 @@ class ImageFragment(context: Context): Fragment(){
         }
 
         bottomNavigation.setOnNavigationItemSelectedListener { item ->
-            when(item.itemId) {
+            when (item.itemId) {
                 R.id.action_delete -> {
                     showDeleteDialog(ctx)
                     true
                 }
                 R.id.action_share -> {
                     showShareDialog(ctx)
+                    true
+                }
+                R.id.action_tags -> {
+                    showTagsDialog(ctx)
                     true
                 }
                 R.id.action_add -> {
@@ -138,6 +148,7 @@ class ImageFragment(context: Context): Fragment(){
                         Toast.makeText(ctx, "Untreated error", Toast.LENGTH_SHORT).show()
                     }
                 }
+
                 override fun onFailure(call: Call<Any>, t: Throwable) {
                     Log.d("ERR", t.toString())
                     Toast.makeText(ctx, "ERROR server", Toast.LENGTH_LONG).show()
@@ -173,17 +184,107 @@ class ImageFragment(context: Context): Fragment(){
                 val position = p.key
                 val im: ImageModel = getImageModelFromPosition(position)!!
 
-                val keys = arrayOf<Array<String>>(im.red, im.green, im.blue)
-                //val bmp: Bitmap = RLE.decompressImageRLE(im.image, im.width, im.height)
-                val bmp: Bitmap = Huffman.applyDecompress(im.image, im.width, im.height, keys)
+                imageZoom.setImageBitmap(im.imageBM)
 
-                imageZoom.setImageBitmap(bmp)
             }
         }
 
         val displayMetrics: DisplayMetrics = context.getResources().getDisplayMetrics()
         val dialogWidth = (displayMetrics.widthPixels * 1).toInt()
         val dialogHeight = (displayMetrics.heightPixels * 0.9).toInt()
+        dialog.getWindow()?.setLayout(dialogWidth, dialogHeight)
+        dialog.show()
+    }
+
+    private fun showTagsDialog(context: Context) {
+        val dialog = Dialog(context)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setContentView(R.layout.add_tags_dialog)
+        dialog.setCanceledOnTouchOutside(false)
+        dialog.setCancelable(true)
+
+        val clearButton = dialog.findViewById(R.id.add_tags_clear_button) as ImageButton
+        val addTagsEditText = dialog.findViewById(R.id.add_tags_edit_text) as EditText
+        val addTagsEditText2 = dialog.findViewById(R.id.add_tags_edit_text2) as EditText
+        val addTagsEditText3 = dialog.findViewById(R.id.add_tags_edit_text3) as EditText
+        val validateTags = dialog.findViewById(R.id.add_tags_validate_button) as Button
+
+        clearButton.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        validateTags.setOnClickListener {
+
+        }
+
+        listOf(addTagsEditText, addTagsEditText2, addTagsEditText3).forEach {
+            it.addTextChangedListener(object : TextWatcher {
+                override fun afterTextChanged(s: Editable) {}
+                override fun beforeTextChanged(
+                    s: CharSequence, start: Int,
+                    count: Int, after: Int
+                ) {
+                }
+
+                override fun onTextChanged(
+                    s: CharSequence, start: Int,
+                    before: Int, count: Int
+                ) {
+/*                    var text = s.toString().replace(" ", "")
+                    text = text.replace("\n", "")
+                    text = text.replace(",", "")
+                    it.setText(text)*/
+                }
+            })
+        }
+
+        validateTags. setOnClickListener{
+            val tags = addTagsEditText.text.toString() + "," + addTagsEditText2.text.toString() + "," + addTagsEditText3.text.toString()
+            for (p in imagesSelected) {
+                if (p.value) {
+                    val position = p.key
+                    val im: ImageModel = getImageModelFromPosition(position)!!
+                    val imageUpdateRequest = GlobalService.imageService.updateImage(
+                        GlobalStatus.JWT,
+                        im.id,
+                        im.name,
+                        im.access_read,
+                        tags
+                    )
+                    imageUpdateRequest.enqueue(object : Callback<Any> {
+                        override fun onResponse(call: Call<Any>, response: Response<Any>) {
+                            if (response.code() == 400 || response.code() == 418) {
+                                val jsonObject = JSONObject(response.errorBody()!!.string())
+                                System.out.println(jsonObject)
+                                Toast.makeText(ctx, jsonObject.toString(), Toast.LENGTH_SHORT)
+                                    .show()
+                            } else if (response.code() == 200) {
+                                val body = response.body()
+                                body?.let {
+                                    resetGridViewAndImageSelected()
+                                    Toast.makeText(ctx, "Successful ungranted", Toast.LENGTH_SHORT)
+                                        .show()
+                                }
+                            } else {
+                                System.out.println("Untreated error")
+                                Toast.makeText(ctx, "Untreated error", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+
+                        override fun onFailure(call: Call<Any>, t: Throwable) {
+                            Log.d("ERR", t.toString())
+                            Toast.makeText(ctx, "ERROR server", Toast.LENGTH_LONG).show()
+                        }
+                    })
+                }
+            }
+            dialog.dismiss()
+        }
+
+        // Change dialog size
+        val displayMetrics: DisplayMetrics = context.getResources().getDisplayMetrics()
+        val dialogWidth = (displayMetrics.widthPixels * 0.80).toInt()
+        val dialogHeight = (displayMetrics.heightPixels * 0.60).toInt()
         dialog.getWindow()?.setLayout(dialogWidth, dialogHeight)
         dialog.show()
     }
@@ -207,24 +308,32 @@ class ImageFragment(context: Context): Fragment(){
                 if (p.value) {
                     val position = p.key
                     val im: ImageModel = getImageModelFromPosition(position)!!
-                    val imageUpdateRequest = GlobalService.imageService.updateImage(GlobalStatus.JWT, im.id, im.name, false)
+                    val imageUpdateRequest = GlobalService.imageService.updateImage(
+                        GlobalStatus.JWT,
+                        im.id,
+                        im.name,
+                        false
+                    )
                     imageUpdateRequest.enqueue(object : Callback<Any> {
                         override fun onResponse(call: Call<Any>, response: Response<Any>) {
                             if (response.code() == 400 || response.code() == 418) {
                                 val jsonObject = JSONObject(response.errorBody()!!.string())
                                 System.out.println(jsonObject)
-                                Toast.makeText(ctx, jsonObject.toString(), Toast.LENGTH_SHORT).show()
+                                Toast.makeText(ctx, jsonObject.toString(), Toast.LENGTH_SHORT)
+                                    .show()
                             } else if (response.code() == 200) {
                                 val body = response.body()
                                 body?.let {
                                     resetGridViewAndImageSelected()
-                                    Toast.makeText(ctx, "Successful ungranted", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(ctx, "Successful ungranted", Toast.LENGTH_SHORT)
+                                        .show()
                                 }
                             } else {
                                 System.out.println("Untreated error")
                                 Toast.makeText(ctx, "Untreated error", Toast.LENGTH_SHORT).show()
                             }
                         }
+
                         override fun onFailure(call: Call<Any>, t: Throwable) {
                             Log.d("ERR", t.toString())
                             Toast.makeText(ctx, "ERROR server", Toast.LENGTH_LONG).show()
@@ -239,24 +348,32 @@ class ImageFragment(context: Context): Fragment(){
                 if (p.value) {
                     val position = p.key
                     val im: ImageModel = getImageModelFromPosition(position)!!
-                    val imageUpdateRequest = GlobalService.imageService.updateImage(GlobalStatus.JWT, im.id, im.name, true)
+                    val imageUpdateRequest = GlobalService.imageService.updateImage(
+                        GlobalStatus.JWT,
+                        im.id,
+                        im.name,
+                        true
+                    )
                     imageUpdateRequest.enqueue(object : Callback<Any> {
                         override fun onResponse(call: Call<Any>, response: Response<Any>) {
                             if (response.code() == 400 || response.code() == 418) {
                                 val jsonObject = JSONObject(response.errorBody()!!.string())
                                 System.out.println(jsonObject)
-                                Toast.makeText(ctx, jsonObject.toString(), Toast.LENGTH_SHORT).show()
+                                Toast.makeText(ctx, jsonObject.toString(), Toast.LENGTH_SHORT)
+                                    .show()
                             } else if (response.code() == 200) {
                                 val body = response.body()
                                 body?.let {
                                     resetGridViewAndImageSelected()
-                                    Toast.makeText(ctx, "Successful granted", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(ctx, "Successful granted", Toast.LENGTH_SHORT)
+                                        .show()
                                 }
                             } else {
                                 System.out.println("Untreated error")
                                 Toast.makeText(ctx, "Untreated error", Toast.LENGTH_SHORT).show()
                             }
                         }
+
                         override fun onFailure(call: Call<Any>, t: Throwable) {
                             Log.d("ERR", t.toString())
                             Toast.makeText(ctx, "ERROR server", Toast.LENGTH_LONG).show()
@@ -278,7 +395,10 @@ class ImageFragment(context: Context): Fragment(){
     private fun showAddDialog(context: Context) {
         val albumReadRequest = GlobalService.albumService.readAlbums(GlobalStatus.JWT, null)
         albumReadRequest.enqueue(object : Callback<ArrayList<AlbumModel>> {
-            override fun onResponse(call: Call<ArrayList<AlbumModel>>, response: Response<ArrayList<AlbumModel>>) {
+            override fun onResponse(
+                call: Call<ArrayList<AlbumModel>>,
+                response: Response<ArrayList<AlbumModel>>
+            ) {
                 if (response.code() == 400 || response.code() == 418) {
                     val jsonObject = JSONObject(response.errorBody()!!.string())
 
@@ -306,7 +426,11 @@ class ImageFragment(context: Context): Fragment(){
                         val album_spinner = dialog.findViewById(R.id.add_album_spinner) as Spinner
                         val add_button = dialog.findViewById(R.id.add_add_button) as Button
 
-                        var arrAdapter = ArrayAdapter<String>(ctx, android.R.layout.simple_spinner_dropdown_item, album_labels)
+                        var arrAdapter = ArrayAdapter<String>(
+                            ctx,
+                            android.R.layout.simple_spinner_dropdown_item,
+                            album_labels
+                        )
                         arrAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                         album_spinner.adapter = arrAdapter
 
@@ -316,7 +440,8 @@ class ImageFragment(context: Context): Fragment(){
 
                         add_button.setOnClickListener {
                             val albumName: String = album_spinner.selectedItem as String
-                            val selectedAlbum: AlbumModel = getAlbumModelFromName(readAlbum, albumName)!!
+                            val selectedAlbum: AlbumModel =
+                                getAlbumModelFromName(readAlbum, albumName)!!
                             val newIds = getImageModelIdsFromImageSelected()
 
                             selectedAlbum.images = arrayListOf<Long>()
@@ -324,7 +449,13 @@ class ImageFragment(context: Context): Fragment(){
                                 selectedAlbum.images.add(id)
                             }
 
-                            var albumUpdateRequest = GlobalService.albumService.updateAlbum(GlobalStatus.JWT, selectedAlbum.id, selectedAlbum.name, selectedAlbum.access_read, selectedAlbum.images)
+                            var albumUpdateRequest = GlobalService.albumService.updateAlbum(
+                                GlobalStatus.JWT,
+                                selectedAlbum.id,
+                                selectedAlbum.name,
+                                selectedAlbum.access_read,
+                                selectedAlbum.images
+                            )
                             albumUpdateRequest.enqueue(object : Callback<Any> {
                                 override fun onResponse(call: Call<Any>, response: Response<Any>) {
                                     val body = response.body()
@@ -333,6 +464,7 @@ class ImageFragment(context: Context): Fragment(){
                                         Toast.makeText(ctx, it.toString(), Toast.LENGTH_LONG).show()
                                     }
                                 }
+
                                 override fun onFailure(call: Call<Any>, t: Throwable) {
                                     Log.d("ERR", t.toString())
                                     Toast.makeText(ctx, "ERROR server", Toast.LENGTH_LONG).show()
@@ -341,16 +473,24 @@ class ImageFragment(context: Context): Fragment(){
                             dialog.dismiss()
                         }
 
-                        album_spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
-                            override fun onNothingSelected(parent: AdapterView<*>?) {
+                        album_spinner.onItemSelectedListener =
+                            object : AdapterView.OnItemSelectedListener {
+                                override fun onNothingSelected(parent: AdapterView<*>?) {
+                                }
+
+                                override fun onItemSelected(
+                                    parent: AdapterView<*>?,
+                                    view: View?,
+                                    position: Int,
+                                    id: Long
+                                ) {
+                                    albumSelected = album_labels.get(position)
+                                }
                             }
-                            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                                albumSelected = album_labels.get(position)
-                            }
-                        }
 
                         // Change dialog size
-                        val displayMetrics: DisplayMetrics = context.getResources().getDisplayMetrics()
+                        val displayMetrics: DisplayMetrics =
+                            context.getResources().getDisplayMetrics()
                         val dialogWidth = (displayMetrics.widthPixels * 0.80).toInt()
                         val dialogHeight = (displayMetrics.heightPixels * 0.40).toInt()
                         dialog.getWindow()?.setLayout(dialogWidth, dialogHeight)
@@ -361,6 +501,7 @@ class ImageFragment(context: Context): Fragment(){
                     Toast.makeText(ctx, "Untreated error", Toast.LENGTH_SHORT).show()
                 }
             }
+
             override fun onFailure(call: Call<ArrayList<AlbumModel>>, t: Throwable) {
                 Log.d("ERR", t.toString())
                 Toast.makeText(ctx, "ERROR server", Toast.LENGTH_LONG).show()
@@ -401,7 +542,10 @@ class ImageFragment(context: Context): Fragment(){
     private fun updateCurrentList() {
         val imageReadRequest = GlobalService.imageService.readImages(GlobalStatus.JWT, null)
         imageReadRequest.enqueue(object : Callback<ArrayList<ImageModel>> {
-            override fun onResponse(call: Call<ArrayList<ImageModel>>, response: Response<ArrayList<ImageModel>>) {
+            override fun onResponse(
+                call: Call<ArrayList<ImageModel>>,
+                response: Response<ArrayList<ImageModel>>
+            ) {
                 if (response.code() == 400 || response.code() == 418) {
                     val jsonObject = JSONObject(response.errorBody()!!.string())
 
@@ -411,6 +555,7 @@ class ImageFragment(context: Context): Fragment(){
                     val body = response.body()
                     body?.let {
                         images = it
+                        completeImageModelWithDecompressBitmap(images)
                         resetGridViewAndImageSelected()
                         Toast.makeText(ctx, "Successful update", Toast.LENGTH_SHORT).show()
                     }
@@ -419,10 +564,26 @@ class ImageFragment(context: Context): Fragment(){
                     Toast.makeText(ctx, "Untreated error", Toast.LENGTH_SHORT).show()
                 }
             }
+
             override fun onFailure(call: Call<ArrayList<ImageModel>>, t: Throwable) {
                 Log.d("ERR", t.toString())
                 Toast.makeText(ctx, "ERROR server: read", Toast.LENGTH_LONG).show()
             }
         })
+    }
+
+    private fun completeImageModelWithDecompressBitmap(toComplete: ArrayList<ImageModel>) {
+        if (GlobalStatus.COMPRESSION == "RLE") {
+            for (im in toComplete) {
+                val bmp: Bitmap = RLE.applyDecompress(im.image, im.width, im.height)
+                im.imageBM = bmp
+            }
+        } else {
+            for (im in toComplete) {
+                val keys = arrayOf<Array<String>>(im.red, im.green, im.blue)
+                val bmp: Bitmap = Huffman.applyDecompress(im.image, im.width, im.height, keys)
+                im.imageBM = bmp
+            }
+        }
     }
 }
