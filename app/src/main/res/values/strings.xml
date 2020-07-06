@@ -17,4 +17,8 @@
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
     <string name="password_verification">Password verification :</string>
+    <string-array name="date_order">
+        <item>From the oldest</item>
+        <item>From the most recent</item>
+    </string-array>
 </resources>

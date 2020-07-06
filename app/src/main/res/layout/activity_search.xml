@@ -4,6 +4,40 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".SearchActivity" >
+    tools:context=".SearchActivity">
+
+    <Button
+        android:id="@+id/buttonBackCamera2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/colorLightGrey"
+        android:drawableLeft="@drawable/baseline_arrow_back_black_18dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/textView"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <Spinner
+        android:id="@+id/spDateOrder"
+        style="@style/spinner_style"
+        android:layout_width="218dp"
+        android:layout_height="24dp"
+        android:entries="@array/date_order"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.125" />
+
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/spDateOrder"
+        app:layout_constraintEnd_toEndOf="@+id/spDateOrder"
+        app:layout_constraintTop_toTopOf="@+id/spDateOrder"
+        app:srcCompat="@android:drawable/arrow_down_float" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
