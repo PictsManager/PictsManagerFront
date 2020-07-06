@@ -249,7 +249,6 @@ class ImageFragment(context: Context) : Fragment() {
                         GlobalStatus.JWT,
                         im.id,
                         im.name,
-                        im.access_read,
                         tags
                     )
                     imageUpdateRequest.enqueue(object : Callback<Any> {
