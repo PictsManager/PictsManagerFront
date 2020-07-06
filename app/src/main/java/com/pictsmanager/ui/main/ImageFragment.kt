@@ -22,6 +22,7 @@ import com.pictsmanager.request.service.GlobalService
 import com.pictsmanager.util.GlobalStatus
 import com.pictsmanager.util.Huffman
 import com.pictsmanager.util.ImageGalleryAdapter
+import com.pictsmanager.util.RLE
 import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
