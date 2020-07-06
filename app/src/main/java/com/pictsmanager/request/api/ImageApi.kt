@@ -29,4 +29,7 @@ interface ImageApi {
 
     @GET("/image/public")
     fun readPublic(@Header("authorization") authorization: String): Call<ArrayList<ImageModel>>
+
+    @GET("/image/search")
+    fun searchImage(@Header("authorization") authorization: String, @Query("tags") tags: String, @Query("self") self: Boolean, @Query("desc") desc: Boolean): Call<ArrayList<ImageModel>>
 }
