@@ -12,20 +12,15 @@ import android.view.Window
 import android.widget.*
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.gson.Gson
 import com.pictsmanager.R
 import com.pictsmanager.request.model.AlbumModel
-import com.pictsmanager.request.model.ImageModel
 import com.pictsmanager.request.service.GlobalService
 import com.pictsmanager.util.AlbumGalleryAdapter
 import com.pictsmanager.util.GlobalStatus
-import com.pictsmanager.util.ImageGalleryAdapter
 import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.io.Console
-import java.lang.Math.log
 import java.lang.StrictMath.log
 
 class AlbumFragment(context: Context): Fragment() {

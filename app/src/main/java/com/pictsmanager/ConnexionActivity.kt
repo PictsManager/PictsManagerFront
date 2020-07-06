@@ -89,6 +89,8 @@ class ConnexionActivity : AppCompatActivity() {
                         if (!isPasswordValid)
                             editText.error = errorText
                     }
+                    else -> {
+                    }
                 }
                 enableConnexionButton(isEmailValid && isPasswordValid)
             }
