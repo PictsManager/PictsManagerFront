@@ -4,6 +4,92 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".SearchActivity" >
+    android:background="@color/colorLightGrey"
+    tools:context=".SearchActivity">
+
+    <Button
+        android:id="@+id/buttonBackCamera2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/colorLightGrey"
+        android:drawableLeft="@drawable/baseline_arrow_back_black_18dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/textView"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <Spinner
+        android:id="@+id/spDateOrder"
+        style="@style/spinner_style"
+        android:layout_width="222dp"
+        android:layout_height="32dp"
+        android:entries="@array/date_order"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.1" />
+
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/spDateOrder"
+        app:layout_constraintEnd_toEndOf="@+id/spDateOrder"
+        app:layout_constraintTop_toTopOf="@+id/spDateOrder"
+        app:srcCompat="@android:drawable/arrow_down_float" />
+
+    <EditText
+        android:id="@+id/searchInput"
+        android:layout_width="237dp"
+        android:layout_height="49dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:hint="Rechercher"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.391"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/spDateOrder"
+        app:layout_constraintVertical_bias="0.02" />
+
+    <ImageButton
+        android:id="@+id/searchSubmit"
+        android:layout_width="52dp"
+        android:layout_height="47dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/searchInput"
+        app:layout_constraintTop_toBottomOf="@+id/spDateOrder"
+        app:layout_constraintVertical_bias="0.02"
+        app:srcCompat="@android:drawable/ic_menu_search" />
+
+    <FrameLayout
+        android:id="@+id/searchGalleryFrame"
+        android:layout_width="wrap_content"
+        android:layout_height="534dp"
+        android:layout_marginStart="2dp"
+        android:layout_marginBottom="1dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/searchInput">
+
+        <GridView
+            android:id="@+id/searchGridView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:horizontalSpacing="16dp"
+            android:numColumns="3"
+            android:padding="16dp"
+            android:stretchMode="columnWidth"
+            android:verticalSpacing="16dp" />
+    </FrameLayout>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

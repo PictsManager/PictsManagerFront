@@ -17,4 +17,10 @@
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
     <string name="password_verification">Password verification :</string>
+    <string-array name="date_order">
+        <item>Du plus anciens</item>
+        <item>Du plus récent</item>
+    </string-array>
+    <string name="search_hint">Tap your search</string>
+    <string name="app_name">Search Interface</string>
 </resources>
