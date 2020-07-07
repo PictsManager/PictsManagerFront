@@ -7,7 +7,8 @@ import androidx.fragment.app.FragmentPagerAdapter
 import com.pictsmanager.ui.main.AlbumFragment
 import com.pictsmanager.ui.main.ImageFragment
 
-class TabAdapter(context: Context, manager: FragmentManager): FragmentPagerAdapter(manager, FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
+class TabAdapter(context: Context, manager: FragmentManager) :
+    FragmentPagerAdapter(manager, FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
     var ctx: Context = context
 
 

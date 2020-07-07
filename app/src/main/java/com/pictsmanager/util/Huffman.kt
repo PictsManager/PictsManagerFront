@@ -2,14 +2,19 @@ package com.pictsmanager.util
 
 import android.graphics.Bitmap
 import android.graphics.Color
-import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.math.pow
 
-class HuffmanNode(var value: Int, var freq: Int, var code: String?, var left: HuffmanNode?, var right: HuffmanNode?) {}
+class HuffmanNode(
+    var value: Int,
+    var freq: Int,
+    var code: String?,
+    var left: HuffmanNode?,
+    var right: HuffmanNode?
+)
 
-class MyComparator: Comparator<HuffmanNode> {
+class MyComparator : Comparator<HuffmanNode> {
     override fun compare(o1: HuffmanNode, o2: HuffmanNode): Int {
         return o1.freq.minus(o2.freq)
     }
@@ -23,9 +28,9 @@ class MyComparator: Comparator<HuffmanNode> {
  */
 class Huffman {
     companion object {
-        var redKey = Array(257) {_ -> "null"}
-        var greenKey = Array(257) {_ -> "null"}
-        var blueKey = Array(257) {_ -> "null"}
+        var redKey = Array(257) { _ -> "null" }
+        var greenKey = Array(257) { _ -> "null" }
+        var blueKey = Array(257) { _ -> "null" }
 
         var width = 0
         var height = 0
@@ -48,7 +53,6 @@ class Huffman {
                 }
             }
 
-            /* sorted map by value */
             val target2: Map<Int, Int> = target1.toList()
                 .sortedBy { (key, value) -> value }
                 .toMap()
@@ -82,8 +86,8 @@ class Huffman {
         private fun toDecimal(binaryNumber : String): Int {
             var sum = 0
             val deux = 2.0
-            binaryNumber.reversed().forEachIndexed {
-                    k, v -> sum += v.toString().toInt() * deux.pow(k).toInt()
+            binaryNumber.reversed().forEachIndexed { k, v ->
+                sum += v.toString().toInt() * deux.pow(k).toInt()
             }
             return sum
         }
@@ -180,9 +184,6 @@ class Huffman {
             return root
         }
 
-        /**
-         * Save red key
-         */
         private fun saveRedKey(root: HuffmanNode?) {
             if (root!!.left == null && root.right == null) {
                 redKey[root.value] = root.code.toString()
@@ -192,9 +193,6 @@ class Huffman {
             saveRedKey(root.right)
         }
 
-        /**
-         * Save green key
-         */
         private fun saveGreenKey(root: HuffmanNode?) {
             if (root!!.left == null && root.right == null) {
                 greenKey[root.value] = root.code.toString()
@@ -204,9 +202,6 @@ class Huffman {
             saveGreenKey(root.right)
         }
 
-        /**
-         * Save blue key
-         */
         private fun saveBlueKey(root: HuffmanNode?) {
             if (root!!.left == null && root.right == null) {
                 blueKey[root.value] = root.code.toString()
@@ -226,18 +221,12 @@ class Huffman {
          * - save keys
          */
         fun applyCompress(bitmap: Bitmap): ByteArray {
-            val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
-            val currentDate = sdf.format(Date())
-            println("HUFFMAN START COMPRESS  $currentDate")
-
             val redArray = ArrayList<Int>()
             val greenArray = ArrayList<Int>()
             val blueArray = ArrayList<Int>()
 
             width = bitmap.width
             height = bitmap.height
-            val bms = width * height
-            print("bitmap in size  $bms")
 
             for (y in 0 until bitmap.height) {
                 for (x in 0 until bitmap.width) {
@@ -270,12 +259,6 @@ class Huffman {
             redTarget = redTarget.plus(greenTarget)
             redTarget = redTarget.plus(blueTarget)
 
-            val sdf2 = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
-            val currentDate2 = sdf2.format(Date())
-            println("HUFFMAN END COMPRESS  $currentDate2")
-            val bas = redTarget.size
-            println("bytearray out size  $bas")
-
             return redTarget
         }
 
@@ -285,26 +268,24 @@ class Huffman {
          * Main logic.
          */
         fun applyDecompress(byteArray: ByteArray, width: Int, height: Int, keys: Array<Array<String>>): Bitmap {
-            val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
-            val currentDate = sdf.format(Date())
-            println("HUFFMAN START DECOMPRESS  $currentDate")
-            val bas = byteArray.size
-            println("bytearray in size  $bas")
-
-
             val image: Bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
 
             val rk = keys[0]
             val gk = keys[1]
             val bk = keys[2]
 
-            val redSize = rk[256]!!.removeRange(0, 1).toInt()
-            val greenSize = gk[256]!!.removeRange(0, 1).toInt()
-            val blueSize = bk[256]!!.removeRange(0, 1).toInt()
+            val redSize = rk[256].removeRange(0, 1).toInt()
+            val greenSize = gk[256].removeRange(0, 1).toInt()
+            val blueSize = bk[256].removeRange(0, 1).toInt()
 
             val redPart = byteArray.sliceArray(IntRange(0, redSize - 1))
             val greenPart = byteArray.sliceArray(IntRange(redSize, redSize + greenSize - 1))
-            val bluePart = byteArray.sliceArray(IntRange(redSize + greenSize, redSize + greenSize + blueSize - 1))
+            val bluePart = byteArray.sliceArray(
+                IntRange(
+                    redSize + greenSize,
+                    redSize + greenSize + blueSize - 1
+                )
+            )
 
             val res = flatToBinary(redPart)
             val ges = flatToBinary(greenPart)
@@ -323,12 +304,6 @@ class Huffman {
                     image.setPixel(i, j, Color.rgb(r, g, b))
                 }
             }
-
-            val sdf2 = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
-            val currentDate2 = sdf2.format(Date())
-            println("HUFFMAN END DECOMPRESS  $currentDate2")
-            val bms = image.width * image.height
-            println("bitmap out size  $bms")
 
             return image
         }

@@ -27,8 +27,6 @@ import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.util.*
-import kotlin.collections.ArrayList
 
 
 class ImageFragment(context: Context) : Fragment() {
@@ -65,7 +63,6 @@ class ImageFragment(context: Context) : Fragment() {
 
     private fun initButtons() {
         gridView.setOnItemClickListener { parent, view, position, id ->
-            //val image = images.get(position)
             val ISAsBool = imagesSelected[position] as Boolean
             imagesSelected[position] = !ISAsBool
 
@@ -159,10 +156,10 @@ class ImageFragment(context: Context) : Fragment() {
         }
 
         // change dialog size
-        val displayMetrics: DisplayMetrics = context.getResources().getDisplayMetrics()
+        val displayMetrics: DisplayMetrics = context.resources.displayMetrics
         val dialogWidth = (displayMetrics.widthPixels * 0.80).toInt()
         val dialogHeight = (displayMetrics.heightPixels * 0.30).toInt()
-        dialog.getWindow()?.setLayout(dialogWidth, dialogHeight)
+        dialog.window?.setLayout(dialogWidth, dialogHeight)
         dialog.show()
     }
 
@@ -190,10 +187,10 @@ class ImageFragment(context: Context) : Fragment() {
             }
         }
 
-        val displayMetrics: DisplayMetrics = context.getResources().getDisplayMetrics()
+        val displayMetrics: DisplayMetrics = context.resources.displayMetrics
         val dialogWidth = (displayMetrics.widthPixels * 1).toInt()
         val dialogHeight = (displayMetrics.heightPixels * 0.9).toInt()
-        dialog.getWindow()?.setLayout(dialogWidth, dialogHeight)
+        dialog.window?.setLayout(dialogWidth, dialogHeight)
         dialog.show()
     }
 
@@ -239,8 +236,9 @@ class ImageFragment(context: Context) : Fragment() {
             })
         }
 
-        validateTags. setOnClickListener{
-            val tags = addTagsEditText.text.toString() + "," + addTagsEditText2.text.toString() + "," + addTagsEditText3.text.toString()
+        validateTags.setOnClickListener {
+            val tags =
+                addTagsEditText.text.toString() + "," + addTagsEditText2.text.toString() + "," + addTagsEditText3.text.toString()
             for (p in imagesSelected) {
                 if (p.value) {
                     val position = p.key
@@ -282,10 +280,10 @@ class ImageFragment(context: Context) : Fragment() {
         }
 
         // Change dialog size
-        val displayMetrics: DisplayMetrics = context.getResources().getDisplayMetrics()
+        val displayMetrics: DisplayMetrics = context.resources.displayMetrics
         val dialogWidth = (displayMetrics.widthPixels * 0.80).toInt()
         val dialogHeight = (displayMetrics.heightPixels * 0.60).toInt()
-        dialog.getWindow()?.setLayout(dialogWidth, dialogHeight)
+        dialog.window?.setLayout(dialogWidth, dialogHeight)
         dialog.show()
     }
 
@@ -385,10 +383,10 @@ class ImageFragment(context: Context) : Fragment() {
         }
 
         // Change dialog size
-        val displayMetrics: DisplayMetrics = context.getResources().getDisplayMetrics()
+        val displayMetrics: DisplayMetrics = context.resources.displayMetrics
         val dialogWidth = (displayMetrics.widthPixels * 0.80).toInt()
         val dialogHeight = (displayMetrics.heightPixels * 0.30).toInt()
-        dialog.getWindow()?.setLayout(dialogWidth, dialogHeight)
+        dialog.window?.setLayout(dialogWidth, dialogHeight)
         dialog.show()
     }
 
@@ -490,10 +488,10 @@ class ImageFragment(context: Context) : Fragment() {
 
                         // Change dialog size
                         val displayMetrics: DisplayMetrics =
-                            context.getResources().getDisplayMetrics()
+                            context.resources.displayMetrics
                         val dialogWidth = (displayMetrics.widthPixels * 0.80).toInt()
                         val dialogHeight = (displayMetrics.heightPixels * 0.40).toInt()
-                        dialog.getWindow()?.setLayout(dialogWidth, dialogHeight)
+                        dialog.window?.setLayout(dialogWidth, dialogHeight)
                         dialog.show()
                     }
                 } else {

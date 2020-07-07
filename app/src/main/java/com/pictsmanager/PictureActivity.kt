@@ -9,9 +9,9 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import android.widget.Toast
 import com.pictsmanager.request.model.ImageModel
 import com.pictsmanager.request.service.GlobalService
 import com.pictsmanager.util.GlobalStatus
@@ -47,7 +47,7 @@ class PictureActivity : AppCompatActivity() {
         val file = File(filePath)
         println("file length")
         println(file.length())
-        var bitmap : Bitmap = BitmapFactory.decodeFile(file.absolutePath)
+        var bitmap: Bitmap = BitmapFactory.decodeFile(file.absolutePath)
         bitmap = sizeReduction(bitmap)
         image = loseImageQuality(bitmap)
         imagePictureView!!.setImageBitmap(image)
@@ -76,7 +76,8 @@ class PictureActivity : AppCompatActivity() {
             var keys: Array<Array<String>>
             if (GlobalStatus.COMPRESSION == "RLE") {
                 imageByteArray = image?.let { it1 -> RLE.applyCompress(it1) }!!
-                keys = arrayOf<Array<String>>(arrayOf<String>(), arrayOf<String>(), arrayOf<String>())
+                keys =
+                    arrayOf<Array<String>>(arrayOf<String>(), arrayOf<String>(), arrayOf<String>())
             } else {
                 imageByteArray = image?.let { it1 -> Huffman.applyCompress(it1) }!!
                 keys = arrayOf<Array<String>>(Huffman.redKey, Huffman.greenKey, Huffman.blueKey)
@@ -100,15 +101,38 @@ class PictureActivity : AppCompatActivity() {
         return compressedImage
     }
 
-    private fun tryAddImage(name: String, access_read: Boolean, byteArray: ByteArray, width: Int, height: Int, key: Array<Array<String>>) {
-        var imageModel = ImageModel(name = name, access_read = access_read, image = byteArray, owner_id = -1, id = -1, date_creation = "", url = "", width = width, height = height, red = key[0], green = key[1], blue = key[2], imageBM = null)
-        val userConnexionRequest = GlobalService.imageService.createImage(GlobalStatus.JWT, imageModel)
+    private fun tryAddImage(
+        name: String,
+        access_read: Boolean,
+        byteArray: ByteArray,
+        width: Int,
+        height: Int,
+        key: Array<Array<String>>
+    ) {
+        var imageModel = ImageModel(
+            name = name,
+            access_read = access_read,
+            image = byteArray,
+            owner_id = -1,
+            id = -1,
+            date_creation = "",
+            url = "",
+            width = width,
+            height = height,
+            red = key[0],
+            green = key[1],
+            blue = key[2],
+            imageBM = null
+        )
+        val userConnexionRequest =
+            GlobalService.imageService.createImage(GlobalStatus.JWT, imageModel)
         userConnexionRequest.enqueue(object : Callback<Any> {
             override fun onResponse(call: Call<Any>, response: Response<Any>) {
                 if (response.code() == 400 || response.code() == 418) {
                     val jsonObject = JSONObject(response.errorBody()!!.string())
                     System.out.println(jsonObject)
-                    Toast.makeText(this@PictureActivity, jsonObject.toString(), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@PictureActivity, jsonObject.toString(), Toast.LENGTH_SHORT)
+                        .show()
                 } else if (response.code() == 200) {
                     Toast.makeText(this@PictureActivity, "Save Image Success", Toast.LENGTH_SHORT)
                         .show()
@@ -116,7 +140,8 @@ class PictureActivity : AppCompatActivity() {
                     startActivity(intent)
                 } else {
                     System.out.println("Untreated error")
-                    Toast.makeText(this@PictureActivity, "Untreated error", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@PictureActivity, "Untreated error", Toast.LENGTH_SHORT)
+                        .show()
                 }
             }
 
@@ -145,9 +170,9 @@ class PictureActivity : AppCompatActivity() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun loseColorQuality(color: Color): Int {
-        val red = color.red() * 255 - (color.red()* 255) % qualityLoss
-        val green = color.green()* 255 - (color.green()* 255) % qualityLoss
-        val blue = color.blue()* 255 - (color.blue()* 255) % qualityLoss
-        return Color.rgb(red /255, green/255, blue/255)
+        val red = color.red() * 255 - (color.red() * 255) % qualityLoss
+        val green = color.green() * 255 - (color.green() * 255) % qualityLoss
+        val blue = color.blue() * 255 - (color.blue() * 255) % qualityLoss
+        return Color.rgb(red / 255, green / 255, blue / 255)
     }
 }
