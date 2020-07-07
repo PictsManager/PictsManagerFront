@@ -70,8 +70,8 @@ class SearchActivity : AppCompatActivity() {
             var order : Boolean
             if (searchInput.text != null) {
                 // From the oldest
-                order = spDateOrder.selectedItemPosition == 0
-
+                order = spDateOrder.selectedItemPosition != 0
+                //order = spDateOrder.selectedItemPosition == 0
 
                 requestForSearching(adaptTagsString(searchInput.text.toString()), order)
 
