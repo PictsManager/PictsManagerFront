@@ -21,7 +21,8 @@
         <activity android:name=".HomeActivity" />
         <activity android:name=".CreateAccountActivity" />
         <activity android:name=".GalleryActivity" />
-        <activity android:name=".SearchActivity" />
+        <activity android:name=".SearchActivity"
+            android:windowSoftInputMode="adjustPan"/>
         <activity android:name=".ProfilActivity" />
         <activity android:name=".PictureActivity" />
         <activity android:name=".SharingActivity" />
