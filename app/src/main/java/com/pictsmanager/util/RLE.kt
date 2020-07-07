@@ -8,7 +8,7 @@ import kotlin.collections.ArrayList
 
 class RLE {
     companion object {
-        fun applyCompress(bitmap: Bitmap) : ByteArray {
+        fun applyCompress(bitmap: Bitmap): ByteArray {
             val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
             val currentDate = sdf.format(Date())
             println("RLE START COMPRESS  $currentDate")
@@ -102,7 +102,7 @@ class RLE {
             array: ByteArray,
             width: Int,
             height: Int
-        ) : Bitmap {
+        ): Bitmap {
             val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
             val currentDate = sdf.format(Date())
             println("RLE START DECOMPRESS  $currentDate")
@@ -124,7 +124,7 @@ class RLE {
                     else
                         colorArray[y * width + x].add(array[i + 1].toInt())
                     x += 1
-                    if(x == width) {
+                    if (x == width) {
                         x = 0
                         y += 1
                         if (y == height) {

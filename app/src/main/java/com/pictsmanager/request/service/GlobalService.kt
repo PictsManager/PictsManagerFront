@@ -1,16 +1,15 @@
 package com.pictsmanager.request.service
 
-import com.pictsmanager.request.api.UsersApi
-import com.pictsmanager.util.GlobalStatus
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import okhttp3.OkHttpClient
-import java.util.concurrent.TimeUnit
-import com.google.gson.GsonBuilder
-
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.pictsmanager.request.api.AlbumApi
 import com.pictsmanager.request.api.ImageApi
+import com.pictsmanager.request.api.UsersApi
+import com.pictsmanager.util.GlobalStatus
+import okhttp3.OkHttpClient
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 
 
 class GlobalService {

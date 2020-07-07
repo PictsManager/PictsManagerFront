@@ -68,7 +68,6 @@ class HomeActivity : AppCompatActivity() {
         override fun onError(cameraDevice: CameraDevice, error: Int) {
             var cameraDevice = cameraDevice
             cameraDevice.close()
-            //cameraDevice = null
         }
     }
 
@@ -110,7 +109,12 @@ class HomeActivity : AppCompatActivity() {
                     ?.getOutputSizes(ImageFormat.JPEG)
 
 
-            val reader = ImageReader.newInstance(GlobalStatus.WIDTH, GlobalStatus.HEIGHT, ImageFormat.JPEG, 1)
+            val reader = ImageReader.newInstance(
+                GlobalStatus.WIDTH,
+                GlobalStatus.HEIGHT,
+                ImageFormat.JPEG,
+                1
+            )
             val outputSurface: MutableList<Surface> = ArrayList(2)
             outputSurface.add(reader.surface)
             outputSurface.add(Surface(textureView!!.surfaceTexture))
@@ -196,7 +200,7 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
-    public fun tempFileImage(context: Context, bitmap: Bitmap, name: String): String {
+    fun tempFileImage(context: Context, bitmap: Bitmap, name: String): String {
 
         var outputDir: File = context.cacheDir
         var imageFile: File = File(outputDir, name + ".jpg")
@@ -219,8 +223,6 @@ class HomeActivity : AppCompatActivity() {
             val texture = textureView!!.surfaceTexture!!
             texture.setDefaultBufferSize(imageDimension!!.width, imageDimension!!.height)
             // Camera will rotate and inverse value of height and width
-//            GlobalStatus.HEIGHT = imageDimension!!.width
-//            GlobalStatus.WIDTH = imageDimension!!.height
             val surface = Surface(texture)
             captureRequestBuilder =
                 cameraDevice!!.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)

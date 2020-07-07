@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.widget.EditText
-import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -30,16 +29,7 @@ class ConnexionActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_connexion)
 
-//        rg = findViewById(R.id.compression)
-//        rg.check(findViewById<RadioButton>(R.id.RLEChoosen).id)
-
-        var emailInput = findViewById(R.id.emailInput) as EditText
-        emailInput.setText("pierre@mail.com")
-        var pwdInput = findViewById(R.id.passInput) as EditText
-        pwdInput.setText("pierre")
-
         initButtons()
-
         enableConnexionButton(false)
     }
 
@@ -120,7 +110,11 @@ class ConnexionActivity : AppCompatActivity() {
                 if (response.code() == 400 || response.code() == 418) {
                     val jsonObject = JSONObject(response.errorBody()!!.string())
                     System.out.println(jsonObject)
-                    Toast.makeText(this@ConnexionActivity, jsonObject.toString(), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this@ConnexionActivity,
+                        jsonObject.toString(),
+                        Toast.LENGTH_SHORT
+                    ).show()
                 } else if (response.code() == 200) {
 
                     GlobalStatus.JWT = response.headers().get("JWT").toString()
@@ -130,7 +124,8 @@ class ConnexionActivity : AppCompatActivity() {
                     startActivity(intent)
                 } else {
                     System.out.println("Untreated error")
-                    Toast.makeText(this@ConnexionActivity, "Untreated error", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@ConnexionActivity, "Untreated error", Toast.LENGTH_SHORT)
+                        .show()
                 }
             }
 

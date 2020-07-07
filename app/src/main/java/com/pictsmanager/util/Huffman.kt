@@ -7,9 +7,15 @@ import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.math.pow
 
-class HuffmanNode(var value: Int, var freq: Int, var code: String?, var left: HuffmanNode?, var right: HuffmanNode?) {}
+class HuffmanNode(
+    var value: Int,
+    var freq: Int,
+    var code: String?,
+    var left: HuffmanNode?,
+    var right: HuffmanNode?
+)
 
-class MyComparator: Comparator<HuffmanNode> {
+class MyComparator : Comparator<HuffmanNode> {
     override fun compare(o1: HuffmanNode, o2: HuffmanNode): Int {
         return o1.freq.minus(o2.freq)
     }
@@ -17,9 +23,9 @@ class MyComparator: Comparator<HuffmanNode> {
 
 class Huffman {
     companion object {
-        var redKey = Array(257) {_ -> "null"}
-        var greenKey = Array(257) {_ -> "null"}
-        var blueKey = Array(257) {_ -> "null"}
+        var redKey = Array(257) { _ -> "null" }
+        var greenKey = Array(257) { _ -> "null" }
+        var blueKey = Array(257) { _ -> "null" }
 
         var width = 0
         var height = 0
@@ -43,7 +49,12 @@ class Huffman {
             return target2
         }
 
-        private fun computeCode(root: HuffmanNode?, s: String, arr: Array<String?>, colorArray: ArrayList<Int>) {
+        private fun computeCode(
+            root: HuffmanNode?,
+            s: String,
+            arr: Array<String?>,
+            colorArray: ArrayList<Int>
+        ) {
             if (root!!.left == null && root.right == null) {
                 root.code = s
                 for (i in colorArray.indices) {
@@ -57,24 +68,27 @@ class Huffman {
             computeCode(root.right, s + "1", arr, colorArray)
         }
 
-        private fun toDecimal(binaryNumber : String): Int {
+        private fun toDecimal(binaryNumber: String): Int {
             var sum = 0
             val deux = 2.0
-            binaryNumber.reversed().forEachIndexed {
-                    k, v -> sum += v.toString().toInt() * deux.pow(k).toInt()
+            binaryNumber.reversed().forEachIndexed { k, v ->
+                sum += v.toString().toInt() * deux.pow(k).toInt()
             }
             return sum
         }
 
         private fun toBinary(decimalNumber: Int, binaryString: String = ""): String {
             while (decimalNumber > 0) {
-                val temp = "${binaryString}${decimalNumber%2}"
-                return toBinary(decimalNumber/2, temp)
+                val temp = "${binaryString}${decimalNumber % 2}"
+                return toBinary(decimalNumber / 2, temp)
             }
             return binaryString.reversed()
         }
 
-        private fun encodeFromHuffmanNodeRoot(colorArray: ArrayList<Int>, root: HuffmanNode?): ByteArray {
+        private fun encodeFromHuffmanNodeRoot(
+            colorArray: ArrayList<Int>,
+            root: HuffmanNode?
+        ): ByteArray {
             val arr = arrayOfNulls<String>(colorArray.size)
             computeCode(root, "", arr, colorArray)
 
@@ -228,7 +242,12 @@ class Huffman {
             return redTarget
         }
 
-        fun applyDecompress(byteArray: ByteArray, width: Int, height: Int, keys: Array<Array<String>>): Bitmap {
+        fun applyDecompress(
+            byteArray: ByteArray,
+            width: Int,
+            height: Int,
+            keys: Array<Array<String>>
+        ): Bitmap {
             val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
             val currentDate = sdf.format(Date())
             println("HUFFMAN START DECOMPRESS  $currentDate")
@@ -242,13 +261,18 @@ class Huffman {
             val gk = keys[1]
             val bk = keys[2]
 
-            val redSize = rk[256]!!.removeRange(0, 1).toInt()
-            val greenSize = gk[256]!!.removeRange(0, 1).toInt()
-            val blueSize = bk[256]!!.removeRange(0, 1).toInt()
+            val redSize = rk[256].removeRange(0, 1).toInt()
+            val greenSize = gk[256].removeRange(0, 1).toInt()
+            val blueSize = bk[256].removeRange(0, 1).toInt()
 
             val redPart = byteArray.sliceArray(IntRange(0, redSize - 1))
             val greenPart = byteArray.sliceArray(IntRange(redSize, redSize + greenSize - 1))
-            val bluePart = byteArray.sliceArray(IntRange(redSize + greenSize, redSize + greenSize + blueSize - 1))
+            val bluePart = byteArray.sliceArray(
+                IntRange(
+                    redSize + greenSize,
+                    redSize + greenSize + blueSize - 1
+                )
+            )
 
             val res = flatToBinary(redPart)
             val ges = flatToBinary(greenPart)

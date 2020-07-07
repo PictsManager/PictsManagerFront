@@ -1,6 +1,5 @@
 package com.pictsmanager.request.api
 
-import com.pictsmanager.request.model.UserModel
 import retrofit2.Call
 import retrofit2.http.*
 

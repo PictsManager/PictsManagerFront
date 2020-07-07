@@ -29,7 +29,11 @@ class ProfilActivity : AppCompatActivity() {
                     if (response.code() == 400 || response.code() == 418) {
                         val jsonObject = JSONObject(response.errorBody()!!.string())
                         System.out.println(jsonObject)
-                        Toast.makeText(this@ProfilActivity, jsonObject.toString(), Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            this@ProfilActivity,
+                            jsonObject.toString(),
+                            Toast.LENGTH_SHORT
+                        ).show()
                     } else if (response.code() == 200) {
 
                         GlobalStatus.JWT = response.headers().get("JWT").toString()
@@ -39,7 +43,8 @@ class ProfilActivity : AppCompatActivity() {
                         startActivity(intent)
                     } else {
                         System.out.println("Untreated error")
-                        Toast.makeText(this@ProfilActivity, "Untreated error", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@ProfilActivity, "Untreated error", Toast.LENGTH_SHORT)
+                            .show()
                     }
                 }
 

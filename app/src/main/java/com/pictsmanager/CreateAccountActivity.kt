@@ -1,12 +1,12 @@
 package com.pictsmanager
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.widget.EditText
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import com.pictsmanager.request.service.GlobalService
 import com.pictsmanager.util.EnumTypeInput
 import kotlinx.android.synthetic.main.activity_connexion.emailInput
@@ -125,15 +125,27 @@ class CreateAccountActivity : AppCompatActivity() {
                 if (response.code() == 400 || response.code() == 418) {
                     val jsonObject = JSONObject(response.errorBody()!!.string())
                     System.out.println(jsonObject)
-                    Toast.makeText(this@CreateAccountActivity, jsonObject.toString(), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this@CreateAccountActivity,
+                        jsonObject.toString(),
+                        Toast.LENGTH_SHORT
+                    ).show()
                 } else if (response.code() == 200) {
-                    Toast.makeText(this@CreateAccountActivity, "Create Account Success", Toast.LENGTH_SHORT)
+                    Toast.makeText(
+                        this@CreateAccountActivity,
+                        "Create Account Success",
+                        Toast.LENGTH_SHORT
+                    )
                         .show()
                     val intent = Intent(this@CreateAccountActivity, ConnexionActivity::class.java)
                     startActivity(intent)
                 } else {
                     System.out.println("Untreated error")
-                    Toast.makeText(this@CreateAccountActivity, "Untreated error", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this@CreateAccountActivity,
+                        "Untreated error",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
 

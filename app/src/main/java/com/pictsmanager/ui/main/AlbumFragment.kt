@@ -21,9 +21,8 @@ import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.lang.StrictMath.log
 
-class AlbumFragment(context: Context): Fragment() {
+class AlbumFragment(context: Context) : Fragment() {
 
     var ctx: Context = context
     var albumsSelected = mutableMapOf<Int, Boolean>()
@@ -33,8 +32,10 @@ class AlbumFragment(context: Context): Fragment() {
     lateinit var gridView: GridView
     lateinit var bottomNavigation: BottomNavigationView
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         var view: View = inflater.inflate(R.layout.album_fragment, container, false)
 
         bottomNavigation = view.findViewById(R.id.album_gallery_bottom_navigation)
@@ -65,7 +66,7 @@ class AlbumFragment(context: Context): Fragment() {
     private fun initButtons() {
         gridView.setOnItemClickListener { parent, view, position, id ->
             val ISAsBool = albumsSelected[position] as Boolean
-            albumsSelected[position] = ! ISAsBool
+            albumsSelected[position] = !ISAsBool
 
             gridView.setItemChecked(position, true)
 
@@ -77,7 +78,7 @@ class AlbumFragment(context: Context): Fragment() {
         }
 
         bottomNavigation.setOnNavigationItemReselectedListener { item ->
-            when(item.itemId) {
+            when (item.itemId) {
                 R.id.action_delete -> {
                     showDeleteDialog(ctx)
                     true
@@ -128,6 +129,7 @@ class AlbumFragment(context: Context): Fragment() {
                         Toast.makeText(ctx, "Untreated error", Toast.LENGTH_SHORT).show()
                     }
                 }
+
                 override fun onFailure(call: Call<Any>, t: Throwable) {
                     Log.d("ERR", t.toString())
                     Toast.makeText(ctx, "ERROR server", Toast.LENGTH_LONG).show()
@@ -138,10 +140,10 @@ class AlbumFragment(context: Context): Fragment() {
         }
 
         // change dialog size
-        val displayMetrics: DisplayMetrics = context.getResources().getDisplayMetrics()
+        val displayMetrics: DisplayMetrics = context.resources.displayMetrics
         val dialogWidth = (displayMetrics.widthPixels * 0.80).toInt()
         val dialogHeight = (displayMetrics.heightPixels * 0.30).toInt()
-        dialog.getWindow()?.setLayout(dialogWidth, dialogHeight)
+        dialog.window?.setLayout(dialogWidth, dialogHeight)
         dialog.show()
     }
 
@@ -164,20 +166,29 @@ class AlbumFragment(context: Context): Fragment() {
                 if (p.value) {
                     val position = p.key
                     val im: AlbumModel = getAlbumModelFromPosition(position)!!
-                    val imageUpdateRequest = GlobalService.albumService.updateAlbum(GlobalStatus.JWT, im.id, im.name, false, im.images)
+                    val imageUpdateRequest = GlobalService.albumService.updateAlbum(
+                        GlobalStatus.JWT,
+                        im.id,
+                        im.name,
+                        false,
+                        im.images
+                    )
                     imageUpdateRequest.enqueue(object : Callback<Any> {
                         override fun onResponse(call: Call<Any>, response: Response<Any>) {
                             if (response.code() == 400 || response.code() == 418) {
                                 val jsonObject = JSONObject(response.errorBody()!!.string())
                                 System.out.println(jsonObject)
-                                Toast.makeText(ctx, jsonObject.toString(), Toast.LENGTH_SHORT).show()
+                                Toast.makeText(ctx, jsonObject.toString(), Toast.LENGTH_SHORT)
+                                    .show()
                             } else if (response.code() == 200) {
-                                Toast.makeText(ctx, "Successfully not granted", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(ctx, "Successfully not granted", Toast.LENGTH_SHORT)
+                                    .show()
                             } else {
                                 System.out.println("Untreated error")
                                 Toast.makeText(ctx, "Untreated error", Toast.LENGTH_SHORT).show()
                             }
                         }
+
                         override fun onFailure(call: Call<Any>, t: Throwable) {
                             Log.d("ERR", t.toString())
                             Toast.makeText(ctx, "ERROR server", Toast.LENGTH_LONG).show()
@@ -192,20 +203,29 @@ class AlbumFragment(context: Context): Fragment() {
                 if (p.value) {
                     val position = p.key
                     val im: AlbumModel = getAlbumModelFromPosition(position)!!
-                    val imageUpdateRequest = GlobalService.albumService.updateAlbum(GlobalStatus.JWT, im.id, im.name, true, null)
+                    val imageUpdateRequest = GlobalService.albumService.updateAlbum(
+                        GlobalStatus.JWT,
+                        im.id,
+                        im.name,
+                        true,
+                        null
+                    )
                     imageUpdateRequest.enqueue(object : Callback<Any> {
                         override fun onResponse(call: Call<Any>, response: Response<Any>) {
                             if (response.code() == 400 || response.code() == 418) {
                                 val jsonObject = JSONObject(response.errorBody()!!.string())
                                 System.out.println(jsonObject)
-                                Toast.makeText(ctx, jsonObject.toString(), Toast.LENGTH_SHORT).show()
+                                Toast.makeText(ctx, jsonObject.toString(), Toast.LENGTH_SHORT)
+                                    .show()
                             } else if (response.code() == 200) {
-                                Toast.makeText(ctx, "Successfully granted", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(ctx, "Successfully granted", Toast.LENGTH_SHORT)
+                                    .show()
                             } else {
                                 System.out.println("Untreated error")
                                 Toast.makeText(ctx, "Untreated error", Toast.LENGTH_SHORT).show()
                             }
                         }
+
                         override fun onFailure(call: Call<Any>, t: Throwable) {
                             Log.d("ERR", t.toString())
                             Toast.makeText(ctx, "ERROR server", Toast.LENGTH_LONG).show()
@@ -217,10 +237,10 @@ class AlbumFragment(context: Context): Fragment() {
         }
 
         // Change dialog size
-        val displayMetrics: DisplayMetrics = context.getResources().getDisplayMetrics()
+        val displayMetrics: DisplayMetrics = context.resources.displayMetrics
         val dialogWidth = (displayMetrics.widthPixels * 0.80).toInt()
         val dialogHeight = (displayMetrics.heightPixels * 0.30).toInt()
-        dialog.getWindow()?.setLayout(dialogWidth, dialogHeight)
+        dialog.window?.setLayout(dialogWidth, dialogHeight)
         dialog.show()
     }
 
@@ -245,7 +265,8 @@ class AlbumFragment(context: Context): Fragment() {
                 invalid_message = "Le nom ne peut être vide."
                 Toast.makeText(ctx, invalid_message, Toast.LENGTH_LONG).show()
             } else {
-                val imageUpdateRequest = GlobalService.albumService.createAlbum(GlobalStatus.JWT, name, false)
+                val imageUpdateRequest =
+                    GlobalService.albumService.createAlbum(GlobalStatus.JWT, name, false)
                 imageUpdateRequest.enqueue(object : Callback<Any> {
                     override fun onResponse(call: Call<Any>, response: Response<Any>) {
                         if (response.code() == 400 || response.code() == 418) {
@@ -260,6 +281,7 @@ class AlbumFragment(context: Context): Fragment() {
                             Toast.makeText(ctx, "Untreated error", Toast.LENGTH_SHORT).show()
                         }
                     }
+
                     override fun onFailure(call: Call<Any>, t: Throwable) {
                         System.out.println(t.toString())
                         Toast.makeText(ctx, "ERROR server", Toast.LENGTH_LONG).show()
@@ -270,10 +292,10 @@ class AlbumFragment(context: Context): Fragment() {
         }
 
         // Change dialog size
-        val displayMetrics: DisplayMetrics = context.getResources().getDisplayMetrics()
+        val displayMetrics: DisplayMetrics = context.resources.displayMetrics
         val dialogWidth = (displayMetrics.widthPixels * 0.80).toInt()
         val dialogHeight = (displayMetrics.heightPixels * 0.40).toInt()
-        dialog.getWindow()?.setLayout(dialogWidth, dialogHeight)
+        dialog.window?.setLayout(dialogWidth, dialogHeight)
         dialog.show()
     }
 
@@ -301,13 +323,17 @@ class AlbumFragment(context: Context): Fragment() {
     private fun updateCurrentList() {
         val imageReadRequest = GlobalService.albumService.readAlbums(GlobalStatus.JWT, null)
         imageReadRequest.enqueue(object : Callback<ArrayList<AlbumModel>> {
-            override fun onResponse(call: Call<ArrayList<AlbumModel>>, response: Response<ArrayList<AlbumModel>>) {
+            override fun onResponse(
+                call: Call<ArrayList<AlbumModel>>,
+                response: Response<ArrayList<AlbumModel>>
+            ) {
                 val body = response.body()
                 body?.let {
                     albums = it
                     resetGridViewAndAlbumSelected()
                 }
             }
+
             override fun onFailure(call: Call<ArrayList<AlbumModel>>, t: Throwable) {
                 Log.d("ERR", t.toString())
                 Toast.makeText(ctx, "ERROR server: read", Toast.LENGTH_LONG).show()

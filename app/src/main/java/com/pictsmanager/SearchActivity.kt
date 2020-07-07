@@ -1,28 +1,20 @@
 package com.pictsmanager
 
-import android.app.SearchManager
-import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.Menu
 import android.view.View
-import android.widget.*
-import androidx.annotation.RequiresApi
+import android.widget.AdapterView
+import android.widget.GridView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.pictsmanager.request.model.ImageModel
 import com.pictsmanager.request.service.GlobalService
-import com.pictsmanager.ui.main.ImageFragment
 import com.pictsmanager.util.GlobalStatus
 import com.pictsmanager.util.Huffman
 import com.pictsmanager.util.ImageGalleryAdapter
 import com.pictsmanager.util.RLE
-import kotlinx.android.synthetic.main.activity_connexion.*
-import kotlinx.android.synthetic.main.activity_gallery.*
-import kotlinx.android.synthetic.main.activity_picture.*
 import kotlinx.android.synthetic.main.activity_search.*
 import org.json.JSONObject
 import retrofit2.Call
@@ -31,7 +23,7 @@ import retrofit2.Response
 
 class SearchActivity : AppCompatActivity() {
     var images: ArrayList<ImageModel> = ArrayList()
-    var selfOption : Boolean = false
+    var selfOption: Boolean = false
     lateinit var gridView: GridView
     lateinit var imageAdapter: ImageGalleryAdapter
 
@@ -39,7 +31,7 @@ class SearchActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search)
 
-        gridView =findViewById(R.id.searchGridView) as GridView
+        gridView = findViewById<GridView>(R.id.searchGridView)
 
         spDateOrder.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(p0: AdapterView<*>?) {}
@@ -67,37 +59,40 @@ class SearchActivity : AppCompatActivity() {
         }
 
         searchSubmit.setOnClickListener {
-            var order : Boolean
+            var order: Boolean
             if (searchInput.text != null) {
                 order = spDateOrder.selectedItemPosition != 0
 
                 requestForSearching(adaptTagsString(searchInput.text.toString()), order)
 
             } else {
-                Toast.makeText(this,
+                Toast.makeText(
+                    this,
                     "No search",
-                    Toast.LENGTH_SHORT).show()
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
 
         switchSelf.setOnCheckedChangeListener { buttonView, isChecked ->
             if (isChecked) {
-                textView3.setText("S'inclure")
+                textView3.text = "S'inclure"
                 selfOption = true
             } else {
-                textView3.setText("Privée")
+                textView3.text = "Privée"
                 selfOption = false
             }
         }
     }
 
-    private fun adaptTagsString(tags: String) : String {
-        var result =  tags.replace(", ", ",", ignoreCase = false)
+    private fun adaptTagsString(tags: String): String {
+        var result = tags.replace(", ", ",", ignoreCase = false)
         return result.replace(" ,", ",", ignoreCase = false)
     }
 
     private fun requestForSearching(tags: String, order: Boolean) {
-        val imageReadRequest = GlobalService.imageService.searchImage(GlobalStatus.JWT, tags, selfOption, order)
+        val imageReadRequest =
+            GlobalService.imageService.searchImage(GlobalStatus.JWT, tags, selfOption, order)
         Log.d("TAGS ", tags + " " + selfOption)
         imageReadRequest.enqueue(object : Callback<ArrayList<ImageModel>> {
             override fun onResponse(
