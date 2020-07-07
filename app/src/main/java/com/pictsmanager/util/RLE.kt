@@ -2,26 +2,23 @@ package com.pictsmanager.util
 
 import android.graphics.Bitmap
 import android.graphics.Color
-import java.text.SimpleDateFormat
-import java.util.*
 import kotlin.collections.ArrayList
 
+/**
+ * This class gives a method for compress and decompress images with RLE algorithm.
+ *
+ * RLE consists in counting the number of equal values ​​which follow each other,
+ * then the encoding results from the value of the counter then from the value considered.
+ */
 class RLE {
     companion object {
-        fun applyCompress(bitmap: Bitmap): ByteArray {
-            val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
-            val currentDate = sdf.format(Date())
-            println("RLE START COMPRESS  $currentDate")
-
-
+        fun applyCompress(bitmap: Bitmap) : ByteArray {
             var redArray = byteArrayOf()
             var greenArray = byteArrayOf()
             var blueArray = byteArrayOf()
 
             val h = bitmap.height
             val w = bitmap.width
-            val size = h * w
-            println("Bitmap in size  $size")
 
             var countr = 1
             var countg = 1
@@ -90,11 +87,6 @@ class RLE {
             redArray = redArray.plus(greenArray)
             redArray = redArray.plus(blueArray)
 
-            val sdf2 = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
-            val currentDate2 = sdf2.format(Date())
-            println("RLE END COMPRESS  $currentDate2")
-            val bas = redArray.size
-            println("bytearray out size  $bas")
             return redArray
         }
 
@@ -103,12 +95,6 @@ class RLE {
             width: Int,
             height: Int
         ): Bitmap {
-            val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
-            val currentDate = sdf.format(Date())
-            println("RLE START DECOMPRESS  $currentDate")
-            val bas = array.size
-            println("bytearray in size  $bas")
-
             val image: Bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
             val colorArray = ArrayList<ArrayList<Int>>()
 
@@ -143,11 +129,6 @@ class RLE {
                 image.setPixel(xC, yC, Color.rgb(red, green, blue))
             }
 
-            val sdf2 = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
-            val currentDate2 = sdf2.format(Date())
-            println("RLE END DECOMPRESS  $currentDate2")
-            val bms = image.width * image.height
-            println("bitmap out size  $bms")
             return image
         }
     }
