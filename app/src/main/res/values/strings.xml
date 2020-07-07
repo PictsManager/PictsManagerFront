@@ -1,0 +1,26 @@
+<resources>
+    <string name="pictsManager">Picts Manager</string>
+    <string name="connexion"><u>Connexion</u></string>
+    <string name="email">Email :</string>
+    <string name="hintEmail">example@mail.com</string>
+    <string name="passwordLabel">Password :</string>
+    <string name="passHint">***********</string>
+    <string name="create_accountTitle">Create Account</string>
+    <string name="create_account"><u>Create Account ?</u></string>
+    <string name="title_activity_login">Sign in</string>
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Sign in or register</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="welcome">"Welcome !"</string>
+    <string name="invalid_username">Not a valid username</string>
+    <string name="invalid_password">Password must be >5 characters</string>
+    <string name="login_failed">"Login failed"</string>
+    <string name="password_verification">Password verification :</string>
+    <string-array name="date_order">
+        <item>Du plus anciens</item>
+        <item>Du plus récent</item>
+    </string-array>
+    <string name="search_hint">Tap your search</string>
+    <string name="app_name">Search Interface</string>
+</resources>

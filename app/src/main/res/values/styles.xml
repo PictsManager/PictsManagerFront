@@ -1,0 +1,42 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorBlack</item>
+        <item name="colorPrimaryDark">@color/colorWhite</item>
+        <item name="colorAccent">@color/colorLightGrey</item>
+
+        <item name="android:textColor">@color/colorBlack</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textStyle">bold</item>
+
+        <item name="buttonStyle">@style/Button</item>
+        <item name="editTextStyle">@style/Input</item>
+    </style>
+
+    <style name="Title" parent="AppTheme">
+        <item name="android:textSize">50sp</item>
+    </style>
+
+    <style name="Input" parent="AppTheme">
+        <item name="android:paddingHorizontal">20dp</item>
+        <item name="android:paddingVertical">15dp</item>
+        <item name="android:background">@drawable/input_background</item>
+        <item name="android:textIsSelectable">true</item>
+    </style>
+
+    <style name="Button" parent="AppTheme">
+        <item name="android:background">@drawable/button_background</item>
+        <item name="android:textColor">@color/colorWhite</item>
+        <item name="android:paddingHorizontal">20dp</item>
+        <item name="android:paddingVertical">15dp</item>
+    </style>
+
+    <style name="spinner_style">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@drawable/gradient_spinner</item>
+        <!--<item name="android:popupBackground">#DFFFFFFF</item>-->
+    </style>
+</resources>

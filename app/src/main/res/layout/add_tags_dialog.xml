@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/add_tags_clear_button"
+        android:background="@color/colorRed"
+        android:src="@drawable/baseline_clear_black_18dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="36dp"
+        android:text="Entrer jusqu'a trois tags qui définissent la séléction\n(ex : animaux, paysage, ... ) :"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/add_tags_edit_text"
+        android:layout_width="247dp"
+        android:layout_height="56dp"
+        android:layout_marginTop="20dp"
+        android:hint="Enter un tag : animaux, ..."
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView2" />
+
+    <EditText
+        android:id="@+id/add_tags_edit_text2"
+        android:layout_width="247dp"
+        android:layout_height="56dp"
+        android:layout_marginTop="20dp"
+        android:hint="Enter un tag : paysage, ..."
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/add_tags_edit_text" />
+
+    <EditText
+        android:id="@+id/add_tags_edit_text3"
+        android:layout_width="247dp"
+        android:layout_height="56dp"
+        android:layout_marginTop="20dp"
+        android:hint="Enter un tag : portrait, ..."
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/add_tags_edit_text2" />
+
+    <Button
+        android:id="@+id/add_tags_validate_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:text="Valider"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/add_tags_edit_text3" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
