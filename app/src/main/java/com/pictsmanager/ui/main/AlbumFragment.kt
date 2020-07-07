@@ -91,7 +91,7 @@ class AlbumFragment(context: Context): Fragment() {
                     true
                 }
                 R.id.action_zoom -> {
-                    true
+                    false
                 }
                 else -> false
             }
