@@ -6,22 +6,21 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
+/**
+ * This class gives a method for compress and decompress images with RLE algorithm.
+ *
+ * RLE consists in counting the number of equal values ​​which follow each other,
+ * then the encoding results from the value of the counter then from the value considered.
+ */
 class RLE {
     companion object {
         fun applyCompress(bitmap: Bitmap) : ByteArray {
-            val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
-            val currentDate = sdf.format(Date())
-            println("RLE START COMPRESS  $currentDate")
-
-
             var redArray = byteArrayOf()
             var greenArray = byteArrayOf()
             var blueArray = byteArrayOf()
 
             val h = bitmap.height
             val w = bitmap.width
-            val size = h * w
-            println("Bitmap in size  $size")
 
             var countr = 1
             var countg = 1
@@ -90,11 +89,6 @@ class RLE {
             redArray = redArray.plus(greenArray)
             redArray = redArray.plus(blueArray)
 
-            val sdf2 = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
-            val currentDate2 = sdf2.format(Date())
-            println("RLE END COMPRESS  $currentDate2")
-            val bas = redArray.size
-            println("bytearray out size  $bas")
             return redArray
         }
 

@@ -15,6 +15,12 @@ class MyComparator: Comparator<HuffmanNode> {
     }
 }
 
+/**
+ * This class gives a method for compress and decompress images with Huffman algorithm.
+ *
+ * Constructed using the Huffman tree, an encoding, according to the following principle,
+ * the more frequent the value the more its encoding will be short.
+ */
 class Huffman {
     companion object {
         var redKey = Array(257) {_ -> "null"}
@@ -24,6 +30,13 @@ class Huffman {
         var width = 0
         var height = 0
 
+        /**
+         * This method gives the frequency of appearance of each number in a list.
+         * The result is given with a dictionary where the key is the number and the value
+         * is its frequency of appearance.
+         *
+         * At the end, the dictionary is ordered from the highest frequency to the lowest.
+         */
         fun buildFrequencies(toCompress: ArrayList<Int>): Map<Int, Int> {
             val target1: MutableMap<Int, Int> = mutableMapOf()
 
@@ -43,6 +56,12 @@ class Huffman {
             return target2
         }
 
+        /**
+         * This method encode a byte array with Huffman's tree.
+         *
+         * Running through each node, if there is no child node, find each value in the byte array
+         * that correspond to the node value, then complete a new array with binary string of the node.
+         */
         private fun computeCode(root: HuffmanNode?, s: String, arr: Array<String?>, colorArray: ArrayList<Int>) {
             if (root!!.left == null && root.right == null) {
                 root.code = s
@@ -57,6 +76,9 @@ class Huffman {
             computeCode(root.right, s + "1", arr, colorArray)
         }
 
+        /**
+         * This method converts a binary string to its decimal value.
+         */
         private fun toDecimal(binaryNumber : String): Int {
             var sum = 0
             val deux = 2.0
@@ -66,21 +88,20 @@ class Huffman {
             return sum
         }
 
-        private fun toBinary(decimalNumber: Int, binaryString: String = ""): String {
-            while (decimalNumber > 0) {
-                val temp = "${binaryString}${decimalNumber%2}"
-                return toBinary(decimalNumber/2, temp)
-            }
-            return binaryString.reversed()
-        }
-
+        /**
+         * This method encode a byte array with Huffman logic.
+         *
+         * First, each byte is replaced by its encoding (referenced by Huffman's tree) into a new array.
+         * Then, the array is flatten into a single binary string.
+         * Finally, the binary string binary is convert into byte array
+         */
         private fun encodeFromHuffmanNodeRoot(colorArray: ArrayList<Int>, root: HuffmanNode?): ByteArray {
             val arr = arrayOfNulls<String>(colorArray.size)
             computeCode(root, "", arr, colorArray)
 
             val encodedString = arr.joinToString("")
-            val parseString = encodedString.chunked(8)
 
+            val parseString = encodedString.chunked(8)
             var target = byteArrayOf()
             for (i in parseString) {
                 val a = toDecimal(i)
@@ -90,6 +111,9 @@ class Huffman {
             return target
         }
 
+        /**
+         * This method converts byte array to binary string.
+         */
         private fun flatToBinary(byteArray: ByteArray): String {
             val arrString = arrayListOf<String>()
 
@@ -108,6 +132,12 @@ class Huffman {
             return arrString.joinToString("")
         }
 
+        /**
+         * This method decode the binary string.
+         *
+         * Iterate through the binary string. When the part of the string is found in key references
+         * array target store the reference.
+         */
         private fun decode(binaryString: String, key: Array<String>): ArrayList<Int> {
             var s = ""
             val target = arrayListOf<Int>()
@@ -122,6 +152,9 @@ class Huffman {
             return target
         }
 
+        /**
+         * This method builds the Huffman's tree from the dictionary of frequency.
+         */
         fun buildHuffmanRootNode(freq: Map<Int, Int>): HuffmanNode? {
             val n = freq.size
             val q: PriorityQueue<HuffmanNode> = PriorityQueue<HuffmanNode>(n, MyComparator())
@@ -147,6 +180,9 @@ class Huffman {
             return root
         }
 
+        /**
+         * Save red key
+         */
         private fun saveRedKey(root: HuffmanNode?) {
             if (root!!.left == null && root.right == null) {
                 redKey[root.value] = root.code.toString()
@@ -156,6 +192,9 @@ class Huffman {
             saveRedKey(root.right)
         }
 
+        /**
+         * Save green key
+         */
         private fun saveGreenKey(root: HuffmanNode?) {
             if (root!!.left == null && root.right == null) {
                 greenKey[root.value] = root.code.toString()
@@ -165,6 +204,9 @@ class Huffman {
             saveGreenKey(root.right)
         }
 
+        /**
+         * Save blue key
+         */
         private fun saveBlueKey(root: HuffmanNode?) {
             if (root!!.left == null && root.right == null) {
                 blueKey[root.value] = root.code.toString()
@@ -174,6 +216,15 @@ class Huffman {
             saveBlueKey(root.right)
         }
 
+        /**
+         * This method compress a bitmap with Huffman's algorithm, the result is a byte array.
+         *
+         * - Split the bitmap into 3 array of integers for red, green and blue.
+         * - Compute the frequency of appearance of each number in color array, then compute the
+         *   Huffman's tree resulting
+         * - Encode color array, with the Huffman tree
+         * - save keys
+         */
         fun applyCompress(bitmap: Bitmap): ByteArray {
             val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
             val currentDate = sdf.format(Date())
@@ -228,6 +279,11 @@ class Huffman {
             return redTarget
         }
 
+        /**
+         * This method decompress a byte array with Huffman's algorithm, the result is a bitmap.
+         *
+         * Main logic.
+         */
         fun applyDecompress(byteArray: ByteArray, width: Int, height: Int, keys: Array<Array<String>>): Bitmap {
             val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
             val currentDate = sdf.format(Date())
