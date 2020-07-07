@@ -21,6 +21,7 @@ import com.pictsmanager.util.Huffman
 import com.pictsmanager.util.ImageGalleryAdapter
 import com.pictsmanager.util.RLE
 import kotlinx.android.synthetic.main.activity_connexion.*
+import kotlinx.android.synthetic.main.activity_gallery.*
 import kotlinx.android.synthetic.main.activity_picture.*
 import kotlinx.android.synthetic.main.activity_search.*
 import org.json.JSONObject
@@ -30,6 +31,7 @@ import retrofit2.Response
 
 class SearchActivity : AppCompatActivity() {
     var images: ArrayList<ImageModel> = ArrayList()
+    var selfOption : Boolean = false
     lateinit var gridView: GridView
     lateinit var imageAdapter: ImageGalleryAdapter
 
@@ -67,9 +69,7 @@ class SearchActivity : AppCompatActivity() {
         searchSubmit.setOnClickListener {
             var order : Boolean
             if (searchInput.text != null) {
-                // From the oldest
                 order = spDateOrder.selectedItemPosition != 0
-                //order = spDateOrder.selectedItemPosition == 0
 
                 requestForSearching(adaptTagsString(searchInput.text.toString()), order)
 
@@ -77,6 +77,16 @@ class SearchActivity : AppCompatActivity() {
                 Toast.makeText(this,
                     "No search",
                     Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        switchSelf.setOnCheckedChangeListener { buttonView, isChecked ->
+            if (isChecked) {
+                textView3.setText("S'inclure")
+                selfOption = true
+            } else {
+                textView3.setText("Privée")
+                selfOption = false
             }
         }
     }
@@ -87,8 +97,8 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun requestForSearching(tags: String, order: Boolean) {
-        val imageReadRequest = GlobalService.imageService.searchImage(GlobalStatus.JWT, tags, true, order)
-        Log.d("TAGS ", tags)
+        val imageReadRequest = GlobalService.imageService.searchImage(GlobalStatus.JWT, tags, selfOption, order)
+        Log.d("TAGS ", tags + " " + selfOption)
         imageReadRequest.enqueue(object : Callback<ArrayList<ImageModel>> {
             override fun onResponse(
                 call: Call<ArrayList<ImageModel>>,
@@ -105,6 +115,7 @@ class SearchActivity : AppCompatActivity() {
                         completeImageModelWithDecompressBitmap(images)
                         resetGridViewAndImageSelected()
                     }
+                    System.out.println(response.body())
                 } else {
                     System.out.println("Untreated error")
                 }
