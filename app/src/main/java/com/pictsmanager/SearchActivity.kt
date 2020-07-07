@@ -37,9 +37,7 @@ class SearchActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search)
 
-        var searchValue = findViewById(R.id.searchInput) as EditText
         gridView =findViewById(R.id.searchGridView) as GridView
-
 
         spDateOrder.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(p0: AdapterView<*>?) {}
@@ -50,9 +48,9 @@ class SearchActivity : AppCompatActivity() {
                 position: Int,
                 id: Long
             ) {
-                Toast.makeText(this@SearchActivity,
+                /*Toast.makeText(this@SearchActivity,
                     "You selected ${adapterView?.getItemAtPosition(position).toString()}",
-                    Toast.LENGTH_LONG).show()
+                    Toast.LENGTH_LONG).show()*/
             }
 
         }
@@ -75,9 +73,6 @@ class SearchActivity : AppCompatActivity() {
 
                 requestForSearching(adaptTagsString(searchInput.text.toString()), order)
 
-                Toast.makeText(this,
-                    "You selected ${searchInput.text} ${order}",
-                    Toast.LENGTH_SHORT).show()
             } else {
                 Toast.makeText(this,
                     "No search",
@@ -103,25 +98,20 @@ class SearchActivity : AppCompatActivity() {
                     val jsonObject = JSONObject(response.errorBody()!!.string())
 
                     System.out.println(jsonObject)
-                    //Toast.makeText(ctx, jsonObject.toString(), Toast.LENGTH_SHORT).show()
                 } else if (response.code() == 200) {
                     val body = response.body()
-                    Log.d("SUCCESS", response.body().toString())
                     body?.let {
                         images = it
                         completeImageModelWithDecompressBitmap(images)
                         resetGridViewAndImageSelected()
-                        //Toast.makeText(ctx, "Successful update", Toast.LENGTH_SHORT).show()
                     }
                 } else {
                     System.out.println("Untreated error")
-                    //Toast.makeText(ctx, "Untreated error", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onFailure(call: Call<ArrayList<ImageModel>>, t: Throwable) {
                 Log.d("ERR", t.toString())
-                //Toast.makeText(ctx, "ERROR server: read", Toast.LENGTH_LONG).show()
             }
         })
     }

@@ -18,8 +18,8 @@
     <string name="login_failed">"Login failed"</string>
     <string name="password_verification">Password verification :</string>
     <string-array name="date_order">
-        <item>From the oldest</item>
-        <item>From the most recent</item>
+        <item>Du plus anciens</item>
+        <item>Du plus récent</item>
     </string-array>
     <string name="search_hint">Tap your search</string>
     <string name="app_name">Search Interface</string>
